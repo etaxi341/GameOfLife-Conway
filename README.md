@@ -32,6 +32,8 @@ How to use the Program
 * Create Blank Image (Just an empty grid)
 * Drawing (Leftclick: Alive Cell --- Rightclick: Dead Cell)
 * Drawing Lines (Hold Shift while drawing to draw straight lines)
+* Instantiate Patterns on the grid
+* Set Alive and Dead Color
 
 ## Built With
 
