@@ -26,7 +26,7 @@ How to use the Program
 
 * Play Button (Run the simulation)
 * Next Frame (Simulate one Cycle)
-* Import Image (Imports an .jpg, .png or. bmp to the grid)
+* Import Image (Imports an .jpg, .png or. bmp to the grid [Everything Higher bigger than 512px in one direction will be downscaled])
 * Save Image (Saves the Simulation at its current state as .bmp)
 * Create Random Image (Creates noisy grid)
 * Create Blank Image (Just an empty grid)
