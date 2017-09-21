@@ -86,24 +86,6 @@ namespace IT_Talents_GameOfLife
             gf.RandomImage(randomComboBox.SelectedIndex);
         }
 
-        /// <summary>
-        /// Sets text of startbutton to string
-        /// </summary>
-        public void SetStartButtonText(string text)
-        {
-            //Set text
-            start.Text = text;
-        }
-
-        /// <summary>
-        /// Returns text of startbutton as string
-        /// </summary>
-        public string GetStartButtonText()
-        {
-            //return text
-            return start.Text;
-        }
-
         //Click Clear Image Button
         private void clear_Click(object sender, EventArgs e)
         {
@@ -121,7 +103,7 @@ namespace IT_Talents_GameOfLife
                 //Set Default Filename
                 savefile.FileName = "GridImage.bmp";
                 //Set Filters
-                savefile.Filter = "Bitmap (*.bmp)|*.bmp";
+                savefile.Filter = "Bitmap (*.bmp)|*.bmp|Conway's GoL Format (*.cogol)|*.cogol";
 
                 //If User presses okay
                 if (savefile.ShowDialog() == DialogResult.OK)
@@ -145,6 +127,11 @@ namespace IT_Talents_GameOfLife
         {
             //Set Cycle Delay to Value of NumericUpDown
             gf.cycleDelay = (int)DelayUpDown.Value;
+        }
+
+        private void paintmode_ship_Click(object sender, EventArgs e)
+        {
+            gf.paintMode = GridForm.paintmode.ship;
         }
     }
 }

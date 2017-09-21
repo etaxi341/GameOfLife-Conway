@@ -50,7 +50,23 @@ namespace IT_Talents_GameOfLife
         //Grid scaled image for displaying
         Bitmap scaledMap;
 
-        #endregion
+        //Is Simulation started
+        public bool started = false;
+
+        //Current painting mode
+        public paintmode paintMode = paintmode.draw;
+
+#endregion
+
+#region Enums
+
+        public enum paintmode
+        {
+            draw,
+            ship
+        }
+
+#endregion
 
 #region Buttons and Other Functions
 
@@ -79,12 +95,9 @@ namespace IT_Talents_GameOfLife
         /// </summary>
         public void StartGrid()
         {
-            //If Startbutton still says "Start" it means that the updateThread is not running
-            if (MainForm.instance.GetStartButtonText() == "Start")
+            //If not started means that the updateThread is not running
+            if (!started)
             {
-                //Set Startbutton Text to "Pause"
-                MainForm.instance.SetStartButtonText("Pause");
-
                 //If really no updateThread runs, then make a new one and start it
                 if (updateThread == null || !updateThread.IsAlive)
                 {
@@ -94,14 +107,14 @@ namespace IT_Talents_GameOfLife
             }
             else
             {
-                //Set Startbutton Text to "Start"
-                MainForm.instance.SetStartButtonText("Start");
 
                 //If there is an updateThread then stop it and make it null
                 if (updateThread != null)
                     updateThread.Abort();
                 updateThread = null;
             }
+
+            started = !started;
         }
 
         /// <summary>
@@ -127,8 +140,8 @@ namespace IT_Talents_GameOfLife
         /// </summary>
         public void ImportImage(string path)
         {
-            //Set Startbutton Text to "Start"
-            MainForm.instance.SetStartButtonText("Start");
+            //Set not started
+            started = false;
 
             //Stop game
             if (updateThread != null)
@@ -148,6 +161,10 @@ namespace IT_Talents_GameOfLife
         /// </summary>
         public void SaveImage(string path)
         {
+            //If path somehow does not end with .bmp then add .bmp as extention
+            if (!path.EndsWith(".bmp", true, null))
+                path += ".bmp";
+
             //Save Image to Path
             image.Save(path);
 
@@ -161,8 +178,8 @@ namespace IT_Talents_GameOfLife
         /// </summary>
         public void RandomImage(int selectedIndex)
         {
-            //Set Startbutton Text to "Start"
-            MainForm.instance.SetStartButtonText("Start");
+            //Set not started
+            started = false;
 
             //Stop game
             if (updateThread != null)
@@ -182,8 +199,8 @@ namespace IT_Talents_GameOfLife
         /// </summary>
         public void ClearImage(int selectedIndex)
         {
-            //Set Startbutton Text to "Start"
-            MainForm.instance.SetStartButtonText("Start");
+            //Set not started
+            started = false;
 
             //Stop game
             if (updateThread != null)
@@ -273,6 +290,7 @@ namespace IT_Talents_GameOfLife
         {
             float aspectratio = (float)image.Width / (float)image.Height;
             this.Size = new Size((int)((this.Size.Height - 39) * aspectratio) + 16, this.Size.Height);
+            gridPictureBox.Size = new Size((int)((this.Size.Height - 39) * aspectratio), this.Size.Height -39);
         }
 
         /// <summary>
@@ -386,7 +404,7 @@ namespace IT_Talents_GameOfLife
         {
             //Make new Bitmap for the displayImage (Could be scaled) Only do this once so we save about 120MB Memory (Garbage Collector takes some time until he destroys it)
             if (scaledMap == null)
-                scaledMap = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+                scaledMap = new Bitmap(gridPictureBox.Width, gridPictureBox.Height);
 
             Graphics graph = Graphics.FromImage(scaledMap);
 
@@ -395,20 +413,22 @@ namespace IT_Talents_GameOfLife
             //Set Interpolate to NearestNeighbour so the pixels are hard and not interpolated
             graph.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
             //Scale Image
-            graph.DrawImage(image, 0, 0, pictureBox1.Width, pictureBox1.Height);
-
+            graph.DrawImage(image, 0, 0, gridPictureBox.Width, gridPictureBox.Height);
             //If its called in a Thread then invoke. If not dont invoke
             if (InvokeRequired)
             {
                 Invoke((MethodInvoker)delegate
                 {
                     //Set picturebox to scaled Bitmap
-                    pictureBox1.Image = scaledMap;
+
+                    gridPictureBox.Image = scaledMap;
                 });
             }
             else
+            {
                 //Set picturebox to scaled Bitmap
-                pictureBox1.Image = scaledMap;
+                gridPictureBox.Image = scaledMap;
+            }
         }
 
         /// <summary>
@@ -538,15 +558,60 @@ namespace IT_Talents_GameOfLife
                     break;
             }
 
-            //Set startpoint for holding Control to make straight lines
-            mouseDownX = e.X;
-            mouseDownY = e.Y;
+            //Check if user wants to draw by hand
+            if (paintMode == paintmode.draw)
+            {
+                //Set startpoint for holding Control to make straight lines
+                mouseDownX = e.X;
+                mouseDownY = e.Y;
 
-            //Set in Painting Mode
-            isPainting = true;
+                //Set in Painting Mode
+                isPainting = true;
 
-            //Set a Dot at Mouse Position
-            PaintAt(e.X, e.Y);
+                //Set a Dot at Mouse Position
+                PaintAt(e.X, e.Y);
+            }
+            //Check if user wants to paint a ship and is using leftclick (color 0 = leftclick)
+            else if (paintMode == paintmode.ship && paintColor == 0)
+            {
+                //Calculate ship size
+                int he = Patterns.ship.Length / Patterns.shipwidth;
+                int wi = Patterns.shipwidth;
+
+                //Every row of ship
+                for (int y = 0; y < he; y++)
+                {
+                    //Every collumn of ship
+                    for (int x = 0; x < wi; x++)
+                    {
+
+                        //Calculate mousePosition on image
+                        float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
+                        float heightMultiplicator = (float)image.Height / (float)gridPictureBox.Height;
+                        int mouseX = (int)(e.X * widthMultiplicator);
+                        int mouseY = (int)(e.Y * heightMultiplicator);
+
+
+                        int yoffset = 0;
+                        int xoffset = 0;
+
+                        //Make infinity work (Check if out of bounds. If yes subtract/add height/width)
+                        if (mouseY + y >= height && y > 0)
+                            yoffset = -height;
+                        if (mouseX + x >= width && x > 0)
+                            xoffset = -width;
+
+
+
+                        //If ship has on position x and y a living cell then add it to the grid
+                        if (Patterns.ship[y * wi + x])
+                            PaintAt(mouseX + x + xoffset, mouseY + y + yoffset, true);
+                    }
+                }
+            }
+
+            //Reset paintmode to hand
+            paintMode = paintmode.draw;
         }
 
         //Check if Mouse Up
@@ -612,14 +677,21 @@ namespace IT_Talents_GameOfLife
         /// <summary>
         /// Paints at Position X,Y with variable paintColor
         /// </summary>
-        private void PaintAt(int x, int y)
+        private void PaintAt(int x, int y, bool imagePos = false)
         {
-            //Variables to calculate from displayPosition to actuall Cell Position
-            float widthMultiplicator = (float)image.Width / (float)pictureBox1.Width;
-            float heightMultiplicator = (float)image.Height / (float)pictureBox1.Height;
+            int mouseX = x;
+            int mouseY = y;
 
-            int mouseX = (int)(x * widthMultiplicator);
-            int mouseY = (int)(y * heightMultiplicator);
+            //If pos has not been calculated for imagepos then calculate here
+            if (!imagePos)
+            {
+                //Variables to calculate from displayPosition to actuall Cell Position
+                float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
+                float heightMultiplicator = (float)image.Height / (float)gridPictureBox.Height;
+
+                mouseX = (int)(x * widthMultiplicator);
+                mouseY = (int)(y * heightMultiplicator);
+            }
 
 
             //If really inside the Cell Grid then
