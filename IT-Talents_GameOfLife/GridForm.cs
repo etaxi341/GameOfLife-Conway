@@ -172,8 +172,14 @@ namespace IT_Talents_GameOfLife
             if (!path.EndsWith(".bmp", true, null))
                 path += ".bmp";
 
+            //Normalize Image for saving
+            initializeGridFromCells(Color.Black, Color.White);
+
             //Save Image to Path
             image.Save(path);
+
+            //Set Image back to defined colors
+            initializeGridFromCells();
 
             //Set lastImagePath variable to path so the programm can import the image again on restart
             Properties.Settings.Default.lastImagePath = path;
@@ -336,19 +342,27 @@ namespace IT_Talents_GameOfLife
         /// <summary>
         /// Create Image from Cells
         /// </summary>
-        public void initializeGridFromCells()
+        public void initializeGridFromCells(Color living, Color dead)
         {
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    Color val = MainForm.livingcolor;
+                    Color val = living;
                     if (!cells[(y * width + x)])
-                        val = MainForm.deadcolor;
+                        val = dead;
 
                     image.SetPixel(x, y, val);
                 }
             }
+        }
+
+        /// <summary>
+        /// Create Image from Cells
+        /// </summary>
+        public void initializeGridFromCells()
+        {
+            initializeGridFromCells(MainForm.livingcolor, MainForm.deadcolor);
         }
 
         /// <summary>
