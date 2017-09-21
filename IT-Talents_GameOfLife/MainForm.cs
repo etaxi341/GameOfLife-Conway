@@ -21,6 +21,9 @@ namespace IT_Talents_GameOfLife
         //MainForm instance
         public static MainForm instance;
 
+        public static Color livingcolor = Color.Black;
+        public static Color deadcolor = Color.White;
+
         #endregion
 
         //Initialize Form
@@ -32,6 +35,12 @@ namespace IT_Talents_GameOfLife
 
             //Set MainForm instance to this
             instance = this;
+
+            //Set Dead and Living Colors from User Settings
+            livingcolor = Properties.Settings.Default.livingColor;
+            livingColor.BackColor = Properties.Settings.Default.livingColor;
+            deadcolor = Properties.Settings.Default.deadColor;
+            deadColor.BackColor = Properties.Settings.Default.deadColor;
 
             //Set GridForm instance and show it
             gf = new GridForm();
@@ -129,9 +138,53 @@ namespace IT_Talents_GameOfLife
             gf.cycleDelay = (int)DelayUpDown.Value;
         }
 
+        //Click Paintmode Ship
         private void paintmode_ship_Click(object sender, EventArgs e)
         {
+            //Set Paintmode to Ship
             gf.paintMode = GridForm.paintmode.ship;
+        }
+
+        private void livingColor_Click(object sender, EventArgs e)
+        {
+            //Show Color Dialog
+            ColorDialog cd = new ColorDialog();
+            DialogResult result = cd.ShowDialog();
+
+            //Check for result
+            if (result == DialogResult.OK)
+            {
+                //Set livingcolor to result
+                livingcolor = cd.Color;
+                livingColor.BackColor = cd.Color;
+
+                Properties.Settings.Default.livingColor = cd.Color;
+                Properties.Settings.Default.Save();
+
+                gf.initializeGridFromCells();
+                gf.syncImage();
+            }
+        }
+
+        private void deadColor_Click(object sender, EventArgs e)
+        {
+            //Show Color Dialog
+            ColorDialog cd = new ColorDialog();
+            DialogResult result = cd.ShowDialog();
+
+            //Check for result
+            if (result == DialogResult.OK)
+            {
+                //Set deadcolor to result
+                deadcolor = cd.Color;
+                deadColor.BackColor = cd.Color;
+
+                Properties.Settings.Default.deadColor = cd.Color;
+                Properties.Settings.Default.Save();
+
+                gf.initializeGridFromCells();
+                gf.syncImage();
+            }
         }
     }
 }

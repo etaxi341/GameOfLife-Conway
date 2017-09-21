@@ -43,6 +43,8 @@
             this.import = new System.Windows.Forms.Button();
             this.nextstep = new System.Windows.Forms.Button();
             this.start = new System.Windows.Forms.Button();
+            this.livingColor = new System.Windows.Forms.Button();
+            this.deadColor = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.DelayUpDown)).BeginInit();
             this.SuspendLayout();
             // 
@@ -202,11 +204,41 @@
             this.start.UseVisualStyleBackColor = true;
             this.start.Click += new System.EventHandler(this.start_Click);
             // 
+            // livingColor
+            // 
+            this.livingColor.BackColor = System.Drawing.Color.Black;
+            this.livingColor.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.livingColor.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
+            this.livingColor.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.livingColor.Location = new System.Drawing.Point(4, 406);
+            this.livingColor.Name = "livingColor";
+            this.livingColor.Size = new System.Drawing.Size(32, 32);
+            this.livingColor.TabIndex = 21;
+            this.ToolTipElement.SetToolTip(this.livingColor, "Living Color");
+            this.livingColor.UseVisualStyleBackColor = false;
+            this.livingColor.Click += new System.EventHandler(this.livingColor_Click);
+            // 
+            // deadColor
+            // 
+            this.deadColor.BackColor = System.Drawing.Color.White;
+            this.deadColor.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.deadColor.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
+            this.deadColor.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.deadColor.Location = new System.Drawing.Point(42, 406);
+            this.deadColor.Name = "deadColor";
+            this.deadColor.Size = new System.Drawing.Size(32, 32);
+            this.deadColor.TabIndex = 22;
+            this.ToolTipElement.SetToolTip(this.deadColor, "Dead Color");
+            this.deadColor.UseVisualStyleBackColor = false;
+            this.deadColor.Click += new System.EventHandler(this.deadColor_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(78, 442);
+            this.Controls.Add(this.deadColor);
+            this.Controls.Add(this.livingColor);
             this.Controls.Add(this.paintmode_ship);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.clear);
@@ -244,5 +276,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button paintmode_ship;
+        private System.Windows.Forms.Button livingColor;
+        private System.Windows.Forms.Button deadColor;
     }
 }

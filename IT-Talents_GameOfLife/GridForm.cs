@@ -30,7 +30,7 @@ namespace IT_Talents_GameOfLife
 
         //Painting Varuables
         bool isPainting = false;
-        int paintColor = 0;
+        Color paintColor = Color.Black;
         int mouseDownX, mouseDownY;
         //Set Running again when game was running before painting
         bool wasRunningBeforePaint = false;
@@ -77,14 +77,21 @@ namespace IT_Talents_GameOfLife
 
             //Check if user had opened a pic before and if it still exists.
             if (Properties.Settings.Default.lastImagePath == "" || !File.Exists(Properties.Settings.Default.lastImagePath))
+            {
                 //No image available to load, so Generate a random image with size 128x128
                 generateRandomImage(128, 128);
+                //Make Cells to Image
+                initializeGridFromCells();
+            }
             else
+            {
                 //Image found. Loading Image and if its bigger than maxSize Variable then downscale
                 rescaleImage(Properties.Settings.Default.lastImagePath);
+                //Make Image to Cells
+                initializeGridFromImage();
+            }
 
-            //Make Image Black And White and set "bool[] cells" to living or dead
-            initializeImage();
+
             //Display the image on the Grid Form
             syncImage();
 
@@ -151,7 +158,7 @@ namespace IT_Talents_GameOfLife
             //Loading Image and if its bigger than maxSize Variable then downscale
             rescaleImage(path);
             //Make Image Black And White and set "bool[] cells" to living or dead
-            initializeImage();
+            initializeGridFromImage();
             //Display the image on the Grid Form
             syncImage();
         }
@@ -278,6 +285,8 @@ namespace IT_Talents_GameOfLife
             Properties.Settings.Default.lastImagePath = filename;
             Properties.Settings.Default.Save();
 
+            this.width = image.Width;
+            this.height = image.Height;
 
             //Fitting the Form to image aspect ratio
             rescaleFormToImage();
@@ -296,7 +305,7 @@ namespace IT_Talents_GameOfLife
         /// <summary>
         /// Make Image Black And White and set "bool[] cells" to living or dead
         /// </summary>
-        private void initializeImage()
+        public void initializeGridFromImage()
         {
             width = image.Width;
             height = image.Height;
@@ -310,16 +319,34 @@ namespace IT_Talents_GameOfLife
                     Color c = image.GetPixel(x, y);
                     int darkness = c.R + c.G + c.B;
 
-                    byte val = 0;
+                    Color val = MainForm.livingcolor;
                     if (darkness >= 384)
                     {
-                        val = 255;
+                        val = MainForm.deadcolor;
                         cells[(y * width + x)] = false;
                     }
                     else
                         cells[(y * width + x)] = true;
 
-                    image.SetPixel(x, y, Color.FromArgb(val, val, val));
+                    image.SetPixel(x, y, val);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Create Image from Cells
+        /// </summary>
+        public void initializeGridFromCells()
+        {
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    Color val = MainForm.livingcolor;
+                    if (!cells[(y * width + x)])
+                        val = MainForm.deadcolor;
+
+                    image.SetPixel(x, y, val);
                 }
             }
         }
@@ -374,7 +401,7 @@ namespace IT_Talents_GameOfLife
                     }
 
                     //Cell color black
-                    byte val = 0;
+                    Color val = MainForm.livingcolor;
 
                     //If less than 2 or more than 3 neighbours then kill cell
                     if (neighbourLifes < 2 || neighbourLifes > 3)
@@ -386,10 +413,10 @@ namespace IT_Talents_GameOfLife
 
                     //If cell is dead then make val = 255 for white color
                     if (!tempcells[y * width + x])
-                        val = 255;
+                        val = MainForm.deadcolor;
 
                     //Set image pixel to cellcolor
-                    image.SetPixel(x, y, Color.FromArgb(val, val, val));
+                    image.SetPixel(x, y, val);
                 }
             }
 
@@ -400,7 +427,7 @@ namespace IT_Talents_GameOfLife
         /// <summary>
         /// Sync cellimage with displayed Image in pictureBox
         /// </summary>
-        private void syncImage()
+        public void syncImage()
         {
             //Make new Bitmap for the displayImage (Could be scaled) Only do this once so we save about 120MB Memory (Garbage Collector takes some time until he destroys it)
             if (scaledMap == null)
@@ -437,7 +464,7 @@ namespace IT_Talents_GameOfLife
         private void UpdateThread()
         {
             //Make Image Black And White and set "bool[] cells" to living or dead
-            initializeImage();
+            initializeGridFromCells();
 
             //bool for While cycle
             bool running = true;
@@ -468,7 +495,14 @@ namespace IT_Talents_GameOfLife
         private void generateRandomImage(int width, int height)
         {
             //Create new Bitmap for noisemap
-            Bitmap noisemap = new Bitmap(width, height);
+            image = new Bitmap(width, height);
+
+            this.width = width;
+            this.height = height;
+
+            //Set new cell amount
+            cells = new BitArray(width * height);
+
             //Create a Random
             Random rnd = new Random();
 
@@ -478,10 +512,10 @@ namespace IT_Talents_GameOfLife
                 //Every Collumn of Image
                 for (int y = 0; y < height; y++)
                 {
-                    //Generate if Pixel is Black or White (0 or 255)
-                    int num = rnd.Next(0, 2) * 255;
-                    //Set Pixel to random generated value
-                    noisemap.SetPixel(x, y, Color.FromArgb(255, num, num, num));
+                    //Generate if Cell is alive or not
+                    int num = rnd.Next(0, 2);
+                    if (num == 1)
+                        cells[y * width + x] = true;
                 }
             }
 
@@ -489,15 +523,12 @@ namespace IT_Talents_GameOfLife
             Properties.Settings.Default.lastImagePath = "";
             Properties.Settings.Default.Save();
 
-            //Set Image to the generated NoiseMap
-            image = noisemap;
-
             //Set Grid Form Size to correct Size
             this.Size = new Size(512 + 16, 512 + 39);
 
 
             //Make Image Black And White and set "bool[] cells" to living or dead
-            initializeImage();
+            initializeGridFromCells();
             //Fitting the Form to image aspect ratio
             rescaleFormToImage();
         }
@@ -509,21 +540,19 @@ namespace IT_Talents_GameOfLife
         {
             //Create new Bitmap for white Image
             image = new Bitmap(width, height);
-            using (Graphics graph = Graphics.FromImage(image))
-            {
-                //Brushes whole image white
-                using (SolidBrush br = new SolidBrush(Color.FromArgb(255, 255, 255)))
-                {
-                    graph.FillRectangle(br, 0, 0, width, height);
-                }
-            }
+
+            this.width = width;
+            this.height = height;
+
+            //Set new cell amount
+            cells = new BitArray(width * height);
 
             //Set Grid Form Size to correct Size
             this.Size = new Size(512 + 16, 512 + 39);
 
 
             //Make Image Black And White and set "bool[] cells" to living or dead
-            initializeImage();
+            initializeGridFromCells();
             //Fitting the Form to image aspect ratio
             rescaleFormToImage();
         }
@@ -549,12 +578,12 @@ namespace IT_Talents_GameOfLife
             {
                 case MouseButtons.Left:
                     //Set Color Black
-                    paintColor = 0;
+                    paintColor = MainForm.livingcolor;
                     break;
 
                 case MouseButtons.Right:
                     //Set Color White
-                    paintColor = 255;
+                    paintColor = MainForm.deadcolor;
                     break;
             }
 
@@ -571,8 +600,8 @@ namespace IT_Talents_GameOfLife
                 //Set a Dot at Mouse Position
                 PaintAt(e.X, e.Y);
             }
-            //Check if user wants to paint a ship and is using leftclick (color 0 = leftclick)
-            else if (paintMode == paintmode.ship && paintColor == 0)
+            //Check if user wants to paint a ship and is using leftclick (color livingcolor = leftclick)
+            else if (paintMode == paintmode.ship && paintColor == MainForm.livingcolor)
             {
                 //Calculate ship size
                 int he = Patterns.ship.Length / Patterns.shipwidth;
@@ -698,7 +727,7 @@ namespace IT_Talents_GameOfLife
             if (mouseY >= 0 && mouseX >= 0 && cells.Length > mouseY * image.Width + mouseX)
             {
                 //Check if Paint Color means alive or dead
-                if (paintColor == 0)
+                if (paintColor == MainForm.livingcolor)
                     //Set cell alive
                     cells[mouseY * image.Width + mouseX] = true;
                 else
@@ -708,7 +737,7 @@ namespace IT_Talents_GameOfLife
                 //If really inside Image
                 if (mouseX < image.Width && mouseY < image.Height)
                     //Set Pixel in paintColor at Mouse Position
-                    image.SetPixel(mouseX, mouseY, Color.FromArgb(paintColor, paintColor, paintColor));
+                    image.SetPixel(mouseX, mouseY, paintColor);
 
                 //Display the image on the Grid Form
                 syncImage();

@@ -34,5 +34,29 @@ namespace IT_Talents_GameOfLife.Properties {
                 this["lastImagePath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Black")]
+        public global::System.Drawing.Color livingColor {
+            get {
+                return ((global::System.Drawing.Color)(this["livingColor"]));
+            }
+            set {
+                this["livingColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("White")]
+        public global::System.Drawing.Color deadColor {
+            get {
+                return ((global::System.Drawing.Color)(this["deadColor"]));
+            }
+            set {
+                this["deadColor"] = value;
+            }
+        }
     }
 }
