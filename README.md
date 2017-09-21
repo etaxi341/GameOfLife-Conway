@@ -10,7 +10,7 @@ You can find more about Conway's Game Of Life [here](https://en.wikipedia.org/wi
 
 ### 1. Download
 
-Download the .exe [here](https://github.com/etaxi341/GameOfLife-Conway/releases/tag/1.0).
+Download the .exe [here](https://github.com/etaxi341/GameOfLife-Conway/releases/tag/1.1).
 
 ### 2. Installing
 
@@ -26,7 +26,7 @@ How to use the Program
 
 * Play Button (Run the simulation)
 * Next Frame (Simulate one Cycle)
-* Import Image (Imports an .jpg, .png or. bmp to the grid [Everything Higher bigger than 512px in one direction will be downscaled])
+* Import Image (Imports an .jpg, .png or. bmp to the grid [Everything bigger than 512px in one direction will be downscaled])
 * Save Image (Saves the Simulation at its current state as .bmp)
 * Create Random Image (Creates noisy grid)
 * Create Blank Image (Just an empty grid)
