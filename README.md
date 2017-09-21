@@ -10,7 +10,7 @@ You can find more about Conway's Game Of Life [here](https://en.wikipedia.org/wi
 
 ### 1. Download
 
-Download the .exe [here](https://github.com/etaxi341/GameOfLife-Conway/releases/tag/1.1).
+Download the .exe [here](https://github.com/etaxi341/GameOfLife-Conway/releases).
 
 ### 2. Installing
 
