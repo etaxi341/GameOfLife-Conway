@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Diagnostics;
 
 namespace IT_Talents_GameOfLife
 {
@@ -23,6 +24,9 @@ namespace IT_Talents_GameOfLife
 
         public static Color livingcolor = Color.Black;
         public static Color deadcolor = Color.White;
+
+        //Current Generation
+        int generation;
 
         #endregion
 
@@ -52,13 +56,31 @@ namespace IT_Talents_GameOfLife
         {
             //Set the Grid Form Location relative to the Main Form Location so they look like they were attached to each other
             gf.Location = new Point(this.Location.X + this.Size.Width - 16, this.Location.Y);
+            gf.Activate();
+            
         }
 
         //Click Start Button
         private void start_Click(object sender, EventArgs e)
         {
+            if (gf.started)
+                start.BackgroundImage = Properties.Resources.icon_start;
+            else
+                start.BackgroundImage = Properties.Resources.icon_pause;
+
             //Start Simulation
             gf.StartGrid();
+        }
+
+        /// <summary>
+        /// Updates the Texture of StartButton to either Pause Or Play
+        /// </summary>
+        public void UpdateStartButton()
+        {
+            if (gf.started)
+                start.BackgroundImage = Properties.Resources.icon_pause;
+            else
+                start.BackgroundImage = Properties.Resources.icon_start;
         }
 
         //Click Next Step Button
@@ -145,6 +167,7 @@ namespace IT_Talents_GameOfLife
             gf.paintMode = GridForm.paintmode.ship;
         }
 
+        //Set Living Color
         private void livingColor_Click(object sender, EventArgs e)
         {
             //Show Color Dialog
@@ -166,6 +189,7 @@ namespace IT_Talents_GameOfLife
             }
         }
 
+        //Set Dead Color
         private void deadColor_Click(object sender, EventArgs e)
         {
             //Show Color Dialog
@@ -185,6 +209,51 @@ namespace IT_Talents_GameOfLife
                 gf.initializeGridFromCells();
                 gf.syncImage();
             }
+        }
+
+        /// <summary>
+        /// Set Current Generation
+        /// </summary>
+        public void SetGeneration(int gen)
+        {
+            if (gen < 0)
+                gen = 0;
+            generation = gen;
+
+
+            if (InvokeRequired)
+            {
+                Invoke((MethodInvoker)delegate
+                {
+                    //Set Generation Label
+                    generationLabel.Text = gen.ToString();
+                });
+            }
+            else
+                //Set Generation Label
+                generationLabel.Text = gen.ToString();
+        }
+
+        /// <summary>
+        /// Get Current Generation
+        /// </summary>
+        public int GetGeneration()
+        {
+            return generation;
+        }
+
+        //Set Paintmode to drawing
+        private void paintmode_draw_Click(object sender, EventArgs e)
+        {
+            //Set DrawMode
+            gf.paintMode = GridForm.paintmode.draw;
+        }
+
+        //Set Paintmode to glider
+        private void paintmode_glider_Click(object sender, EventArgs e)
+        {
+            //Set DrawMode
+            gf.paintMode = GridForm.paintmode.glider;
         }
     }
 }

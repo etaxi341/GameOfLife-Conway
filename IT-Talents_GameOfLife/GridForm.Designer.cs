@@ -52,6 +52,8 @@
             this.ClientSize = new System.Drawing.Size(512, 512);
             this.Controls.Add(this.gridPictureBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "GridForm";
             this.Text = "Grid";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);

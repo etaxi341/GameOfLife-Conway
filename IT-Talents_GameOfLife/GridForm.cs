@@ -63,7 +63,8 @@ namespace IT_Talents_GameOfLife
         public enum paintmode
         {
             draw,
-            ship
+            ship,
+            glider
         }
 
 #endregion
@@ -155,10 +156,15 @@ namespace IT_Talents_GameOfLife
                 updateThread.Abort();
             updateThread = null;
 
+            //Update Start/Pause Button
+            MainForm.instance.UpdateStartButton();
+
             //Loading Image and if its bigger than maxSize Variable then downscale
             rescaleImage(path);
             //Make Image Black And White and set "bool[] cells" to living or dead
             initializeGridFromImage();
+            //Reset Generation
+            MainForm.instance.SetGeneration(0);
             //Display the image on the Grid Form
             syncImage();
         }
@@ -199,10 +205,15 @@ namespace IT_Talents_GameOfLife
                 updateThread.Abort();
             updateThread = null;
 
+            //Update Start/Pause Button
+            MainForm.instance.UpdateStartButton();
+
             //Calculate Image size
             int size = 16 * (int)Math.Pow(2, selectedIndex);
             //Generate Random Image with size
             generateRandomImage(size, size);
+            //Reset Generation
+            MainForm.instance.SetGeneration(0);
             //Display the image on the Grid Form
             syncImage();
         }
@@ -220,10 +231,15 @@ namespace IT_Talents_GameOfLife
                 updateThread.Abort();
             updateThread = null;
 
+            //Update Start/Pause Button
+            MainForm.instance.UpdateStartButton();
+
             //Calculate Image size
             int size = 16 * (int)Math.Pow(2, selectedIndex);
             //Generate Random Image with size
             generateClearImage(size, size);
+            //Reset Generation
+            MainForm.instance.SetGeneration(0);
             //Display the image on the Grid Form
             syncImage();
         }
@@ -366,12 +382,15 @@ namespace IT_Talents_GameOfLife
         }
 
         /// <summary>
-        /// Make Image Black And White and set "bool[] cells" to living or dead
+        /// Update Grid by one Cycle
         /// </summary>
         private void processRun()
         {
             //Making tempcell variable so we still have cell data before the change
             BitArray tempcells = (BitArray)cells.Clone();
+
+            Color val;
+            int neighbourLifes;
 
             //Every Row of Image
             for (int y = 0; y < height; y++)
@@ -380,7 +399,7 @@ namespace IT_Talents_GameOfLife
                 for (int x = 0; x < width; x++)
                 {
                     //Amount of living neighbours
-                    int neighbourLifes = 0;
+                    neighbourLifes = 0;
 
                     //Every Row around me
                     for (int yn = -1; yn <= 1; yn++)
@@ -415,7 +434,7 @@ namespace IT_Talents_GameOfLife
                     }
 
                     //Cell color black
-                    Color val = MainForm.livingcolor;
+                    val = MainForm.livingcolor;
 
                     //If less than 2 or more than 3 neighbours then kill cell
                     if (neighbourLifes < 2 || neighbourLifes > 3)
@@ -490,6 +509,10 @@ namespace IT_Talents_GameOfLife
                 Thread.Sleep(cycleDelay);
                 //Make a Turn
                 processRun();
+                 
+                //Set Generation number;
+                MainForm.instance.SetGeneration(MainForm.instance.GetGeneration() + 1);
+
                 //Display the image on the Grid Form
                 syncImage();
 
@@ -581,7 +604,12 @@ namespace IT_Talents_GameOfLife
             //If simulation is running then pause it
             if (updateThread != null && updateThread.IsAlive)
             {
+                started = false;
+
                 updateThread.Abort();
+
+                //Update Start/Pause Button
+                MainForm.instance.UpdateStartButton();
 
                 //Set variable wasRunningBeforePaint so it restarts when stop painting
                 wasRunningBeforePaint = true;
@@ -615,16 +643,27 @@ namespace IT_Talents_GameOfLife
                 PaintAt(e.X, e.Y);
             }
             //Check if user wants to paint a ship and is using leftclick (color livingcolor = leftclick)
-            else if (paintMode == paintmode.ship && paintColor == MainForm.livingcolor)
+            else if (paintMode != paintmode.draw && paintColor == MainForm.livingcolor)
             {
-                //Calculate ship size
-                int he = Patterns.ship.Length / Patterns.shipwidth;
-                int wi = Patterns.shipwidth;
+                //Calculate pattern size
+                int he = Patterns.ship.GetLength(0);
+                int wi = Patterns.ship.GetLength(1);
 
-                //Every row of ship
+                bool[,] pattern = Patterns.ship;
+
+                //Check Paintmode
+                if (paintMode == paintmode.glider)
+                {
+                    he = Patterns.glider.GetLength(0);
+                    wi = Patterns.glider.GetLength(1);
+
+                    pattern = Patterns.glider;
+                }
+
+                //Every row of pattern
                 for (int y = 0; y < he; y++)
                 {
-                    //Every collumn of ship
+                    //Every collumn of pattern
                     for (int x = 0; x < wi; x++)
                     {
 
@@ -645,9 +684,8 @@ namespace IT_Talents_GameOfLife
                             xoffset = -width;
 
 
-
-                        //If ship has on position x and y a living cell then add it to the grid
-                        if (Patterns.ship[y * wi + x])
+                        //If pattern has on position x and y a living cell then add it to the grid
+                        if (pattern[y, x])
                             PaintAt(mouseX + x + xoffset, mouseY + y + yoffset, true);
                     }
                 }
@@ -682,6 +720,12 @@ namespace IT_Talents_GameOfLife
                 //Create Thread
                 updateThread = new Thread(UpdateThread);
                 updateThread.Start();
+
+                started = true;
+
+                //Update Start/Pause Button
+                MainForm.instance.UpdateStartButton();
+
                 //Set wasRunningBeforePaint back to false
                 wasRunningBeforePaint = false;
             }
@@ -722,39 +766,47 @@ namespace IT_Talents_GameOfLife
         /// </summary>
         private void PaintAt(int x, int y, bool imagePos = false)
         {
-            int mouseX = x;
-            int mouseY = y;
-
-            //If pos has not been calculated for imagepos then calculate here
-            if (!imagePos)
+            //Try because sometimes by fast clicking it crashes because multiple threads try to get picturebox width
+            try
             {
-                //Variables to calculate from displayPosition to actuall Cell Position
-                float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
-                float heightMultiplicator = (float)image.Height / (float)gridPictureBox.Height;
+                int mouseX = x;
+                int mouseY = y;
 
-                mouseX = (int)(x * widthMultiplicator);
-                mouseY = (int)(y * heightMultiplicator);
+                //If pos has not been calculated for imagepos then calculate here
+                if (!imagePos)
+                {
+                    //Variables to calculate from displayPosition to actuall Cell Position
+                    float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
+                    float heightMultiplicator = (float)image.Height / (float)gridPictureBox.Height;
+
+                    mouseX = (int)(x * widthMultiplicator);
+                    mouseY = (int)(y * heightMultiplicator);
+                }
+
+
+                //If really inside the Cell Grid then
+                if (mouseY >= 0 && mouseX >= 0 && cells.Length > mouseY * image.Width + mouseX)
+                {
+                    //Check if Paint Color means alive or dead
+                    if (paintColor == MainForm.livingcolor)
+                        //Set cell alive
+                        cells[mouseY * image.Width + mouseX] = true;
+                    else
+                        //Set cell dead
+                        cells[mouseY * image.Width + mouseX] = false;
+
+                    //If really inside Image
+                    if (mouseX < image.Width && mouseY < image.Height)
+                        //Set Pixel in paintColor at Mouse Position
+                        image.SetPixel(mouseX, mouseY, paintColor);
+
+                    //Display the image on the Grid Form
+                    syncImage();
+                }
             }
-
-
-            //If really inside the Cell Grid then
-            if (mouseY >= 0 && mouseX >= 0 && cells.Length > mouseY * image.Width + mouseX)
+            catch
             {
-                //Check if Paint Color means alive or dead
-                if (paintColor == MainForm.livingcolor)
-                    //Set cell alive
-                    cells[mouseY * image.Width + mouseX] = true;
-                else
-                    //Set cell dead
-                    cells[mouseY * image.Width + mouseX] = false;
 
-                //If really inside Image
-                if (mouseX < image.Width && mouseY < image.Height)
-                    //Set Pixel in paintColor at Mouse Position
-                    image.SetPixel(mouseX, mouseY, paintColor);
-
-                //Display the image on the Grid Form
-                syncImage();
             }
         }
 #endregion

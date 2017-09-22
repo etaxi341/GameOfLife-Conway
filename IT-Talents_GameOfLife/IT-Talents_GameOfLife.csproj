@@ -109,5 +109,11 @@
   <ItemGroup>
     <None Include="Resources\icon_pattern_ship.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_cursor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_pause.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
