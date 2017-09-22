@@ -29,16 +29,13 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.randomComboBox = new System.Windows.Forms.ComboBox();
             this.DelayUpDown = new System.Windows.Forms.NumericUpDown();
             this.ToolTipElement = new System.Windows.Forms.ToolTip(this.components);
             this.livingColor = new System.Windows.Forms.Button();
             this.deadColor = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.generationLabel = new System.Windows.Forms.Label();
+            this.paintmode_glider = new System.Windows.Forms.Button();
             this.paintmode_draw = new System.Windows.Forms.Button();
             this.paintmode_ship = new System.Windows.Forms.Button();
             this.clear = new System.Windows.Forms.Button();
@@ -47,7 +44,13 @@
             this.import = new System.Windows.Forms.Button();
             this.nextstep = new System.Windows.Forms.Button();
             this.start = new System.Windows.Forms.Button();
-            this.paintmode_glider = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.generationLabel = new System.Windows.Forms.Label();
+            this.populationLabel = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.DelayUpDown)).BeginInit();
             this.SuspendLayout();
             // 
@@ -63,7 +66,7 @@
             "128x128",
             "256x256",
             "512x512"});
-            this.randomComboBox.Location = new System.Drawing.Point(4, 163);
+            this.randomComboBox.Location = new System.Drawing.Point(4, 172);
             this.randomComboBox.Name = "randomComboBox";
             this.randomComboBox.Size = new System.Drawing.Size(70, 21);
             this.randomComboBox.TabIndex = 10;
@@ -116,47 +119,19 @@
             this.deadColor.UseVisualStyleBackColor = false;
             this.deadColor.Click += new System.EventHandler(this.deadColor_Click);
             // 
-            // label1
+            // paintmode_glider
             // 
-            this.label1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.label1.Location = new System.Drawing.Point(-9, 39);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(100, 2);
-            this.label1.TabIndex = 17;
-            // 
-            // label2
-            // 
-            this.label2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.label2.Location = new System.Drawing.Point(-9, 158);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(100, 2);
-            this.label2.TabIndex = 18;
-            // 
-            // label3
-            // 
-            this.label3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.label3.Location = new System.Drawing.Point(-9, 225);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(100, 2);
-            this.label3.TabIndex = 19;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(8, 106);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(62, 13);
-            this.label4.TabIndex = 23;
-            this.label4.Text = "Generation:";
-            // 
-            // generationLabel
-            // 
-            this.generationLabel.Location = new System.Drawing.Point(4, 119);
-            this.generationLabel.Name = "generationLabel";
-            this.generationLabel.Size = new System.Drawing.Size(70, 33);
-            this.generationLabel.TabIndex = 24;
-            this.generationLabel.Text = "0";
-            this.generationLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.paintmode_glider.BackgroundImage = global::IT_Talents_GameOfLife.Properties.Resources.icon_pattern_glider;
+            this.paintmode_glider.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.paintmode_glider.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
+            this.paintmode_glider.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.paintmode_glider.Location = new System.Drawing.Point(4, 277);
+            this.paintmode_glider.Name = "paintmode_glider";
+            this.paintmode_glider.Size = new System.Drawing.Size(32, 32);
+            this.paintmode_glider.TabIndex = 26;
+            this.ToolTipElement.SetToolTip(this.paintmode_glider, "Add Ship to Grid");
+            this.paintmode_glider.UseVisualStyleBackColor = true;
+            this.paintmode_glider.Click += new System.EventHandler(this.paintmode_glider_Click);
             // 
             // paintmode_draw
             // 
@@ -164,7 +139,7 @@
             this.paintmode_draw.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.paintmode_draw.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
             this.paintmode_draw.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.paintmode_draw.Location = new System.Drawing.Point(4, 230);
+            this.paintmode_draw.Location = new System.Drawing.Point(4, 239);
             this.paintmode_draw.Name = "paintmode_draw";
             this.paintmode_draw.Size = new System.Drawing.Size(32, 32);
             this.paintmode_draw.TabIndex = 25;
@@ -178,7 +153,7 @@
             this.paintmode_ship.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.paintmode_ship.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
             this.paintmode_ship.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.paintmode_ship.Location = new System.Drawing.Point(42, 230);
+            this.paintmode_ship.Location = new System.Drawing.Point(42, 239);
             this.paintmode_ship.Name = "paintmode_ship";
             this.paintmode_ship.Size = new System.Drawing.Size(32, 32);
             this.paintmode_ship.TabIndex = 20;
@@ -191,7 +166,7 @@
             this.clear.BackgroundImage = global::IT_Talents_GameOfLife.Properties.Resources.icon_newblank;
             this.clear.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
             this.clear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.clear.Location = new System.Drawing.Point(42, 190);
+            this.clear.Location = new System.Drawing.Point(42, 199);
             this.clear.Name = "clear";
             this.clear.Size = new System.Drawing.Size(32, 32);
             this.clear.TabIndex = 11;
@@ -205,7 +180,7 @@
             this.randomimg.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.randomimg.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
             this.randomimg.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.randomimg.Location = new System.Drawing.Point(4, 190);
+            this.randomimg.Location = new System.Drawing.Point(4, 199);
             this.randomimg.Name = "randomimg";
             this.randomimg.Size = new System.Drawing.Size(32, 32);
             this.randomimg.TabIndex = 9;
@@ -267,25 +242,73 @@
             this.start.UseVisualStyleBackColor = true;
             this.start.Click += new System.EventHandler(this.start_Click);
             // 
-            // paintmode_glider
+            // label1
             // 
-            this.paintmode_glider.BackgroundImage = global::IT_Talents_GameOfLife.Properties.Resources.icon_pattern_ship;
-            this.paintmode_glider.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.paintmode_glider.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
-            this.paintmode_glider.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.paintmode_glider.Location = new System.Drawing.Point(4, 268);
-            this.paintmode_glider.Name = "paintmode_glider";
-            this.paintmode_glider.Size = new System.Drawing.Size(32, 32);
-            this.paintmode_glider.TabIndex = 26;
-            this.ToolTipElement.SetToolTip(this.paintmode_glider, "Add Ship to Grid");
-            this.paintmode_glider.UseVisualStyleBackColor = true;
-            this.paintmode_glider.Click += new System.EventHandler(this.paintmode_glider_Click);
+            this.label1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.label1.Location = new System.Drawing.Point(-9, 39);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(100, 2);
+            this.label1.TabIndex = 17;
+            // 
+            // label2
+            // 
+            this.label2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.label2.Location = new System.Drawing.Point(-9, 167);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(100, 2);
+            this.label2.TabIndex = 18;
+            // 
+            // label3
+            // 
+            this.label3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.label3.Location = new System.Drawing.Point(-9, 234);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(100, 2);
+            this.label3.TabIndex = 19;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(8, 106);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(62, 13);
+            this.label4.TabIndex = 23;
+            this.label4.Text = "Generation:";
+            // 
+            // generationLabel
+            // 
+            this.generationLabel.Location = new System.Drawing.Point(4, 119);
+            this.generationLabel.Name = "generationLabel";
+            this.generationLabel.Size = new System.Drawing.Size(70, 13);
+            this.generationLabel.TabIndex = 24;
+            this.generationLabel.Text = "0";
+            this.generationLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // populationLabel
+            // 
+            this.populationLabel.Location = new System.Drawing.Point(4, 150);
+            this.populationLabel.Name = "populationLabel";
+            this.populationLabel.Size = new System.Drawing.Size(70, 14);
+            this.populationLabel.TabIndex = 28;
+            this.populationLabel.Text = "0";
+            this.populationLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(8, 137);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(60, 13);
+            this.label6.TabIndex = 27;
+            this.label6.Text = "Population:";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(78, 442);
+            this.Controls.Add(this.populationLabel);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.paintmode_glider);
             this.Controls.Add(this.paintmode_draw);
             this.Controls.Add(this.generationLabel);
@@ -305,10 +328,11 @@
             this.Controls.Add(this.nextstep);
             this.Controls.Add(this.start);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "MainForm";
-            this.Text = "MainForm";
+            this.Text = "Tool Box";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
             this.LocationChanged += new System.EventHandler(this.MainForm_LocationChanged);
             ((System.ComponentModel.ISupportInitialize)(this.DelayUpDown)).EndInit();
@@ -338,5 +362,7 @@
         private System.Windows.Forms.Label generationLabel;
         private System.Windows.Forms.Button paintmode_draw;
         private System.Windows.Forms.Button paintmode_glider;
+        private System.Windows.Forms.Label populationLabel;
+        private System.Windows.Forms.Label label6;
     }
 }

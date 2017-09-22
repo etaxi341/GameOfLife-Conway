@@ -7,7 +7,7 @@
     <ProjectGuid>{63E65386-1E38-463F-AEC1-7270A0CBA471}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>IT_Talents_GameOfLife</RootNamespace>
-    <AssemblyName>IT-Talents_GameOfLife</AssemblyName>
+    <AssemblyName>GameOfLife_MaxEngel</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -29,6 +29,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -114,6 +117,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\icon_pause.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_pattern_glider.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

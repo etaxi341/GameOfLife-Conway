@@ -391,6 +391,7 @@ namespace IT_Talents_GameOfLife
 
             Color val;
             int neighbourLifes;
+            int population = 0;
 
             //Every Row of Image
             for (int y = 0; y < height; y++)
@@ -447,11 +448,15 @@ namespace IT_Talents_GameOfLife
                     //If cell is dead then make val = 255 for white color
                     if (!tempcells[y * width + x])
                         val = MainForm.deadcolor;
+                    else
+                        population++;
 
                     //Set image pixel to cellcolor
                     image.SetPixel(x, y, val);
                 }
             }
+
+            MainForm.instance.SetPopulation(population);
 
             //Update the original cells with a copy of tempcells
             cells = tempcells;

@@ -242,6 +242,27 @@ namespace IT_Talents_GameOfLife
             return generation;
         }
 
+        /// <summary>
+        /// Set Current Population
+        /// </summary>
+        public void SetPopulation(int pop)
+        {
+            if (pop < 0)
+                pop = 0;
+
+            if (InvokeRequired)
+            {
+                Invoke((MethodInvoker)delegate
+                {
+                    //Set Population Label
+                    populationLabel.Text = pop.ToString();
+                });
+            }
+            else
+                //Set Population Label
+                populationLabel.Text = pop.ToString();
+        }
+
         //Set Paintmode to drawing
         private void paintmode_draw_Click(object sender, EventArgs e)
         {
