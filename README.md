@@ -33,6 +33,7 @@ How to use the Program
 * Drawing (Leftclick: Alive Cell --- Rightclick: Dead Cell)
 * Drawing Lines (Hold Shift while drawing to draw straight lines)
 * Instantiate Patterns on the grid
+* Add your own custom Patterns
 * Set Alive and Dead Color
 
 ## Built With
