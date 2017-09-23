@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
+using System.Configuration;
 
 namespace IT_Talents_GameOfLife
 {
@@ -36,6 +38,82 @@ namespace IT_Talents_GameOfLife
                 }
             }
             return ret;
+        }
+
+        public static void AddPattern(string path, string name)
+        {
+            Properties.Settings.Default.patterns += path + "|" + name + ";";
+            Properties.Settings.Default.Save();
+        }
+
+        public static bool[,] GetPattern(string name)
+        {
+            string[] patterns = Properties.Settings.Default.patterns.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+            Bitmap bmp = null;
+
+            foreach (string pattern in patterns)
+            {
+                string[] pathAndName = pattern.Split('|');
+
+                if (pathAndName[1] == name)
+                    bmp = new Bitmap(pathAndName[0]);
+            }
+
+            if (bmp == null)
+                return null;
+
+            bool[,] patternGrid = new bool[bmp.Height, bmp.Width];
+
+            for (int y = 0; y < bmp.Height; y++)
+            {
+                for (int x = 0; x < bmp.Width; x++)
+                {
+                    Color c = bmp.GetPixel(x, y);
+                    int darkness = c.R + c.G + c.B;
+
+                    if (darkness >= 384)
+                        patternGrid[y, x] = false;
+                    else
+                        patternGrid[y, x] = true;
+                }
+
+            }
+
+            return patternGrid;
+        }
+
+        public static bool hasName(string name)
+        {
+            string[] patterns = Properties.Settings.Default.patterns.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string pattern in patterns)
+            {
+                string[] pathAndName = pattern.Split('|');
+
+                if (pathAndName[1] == name)
+                    return true;
+            }
+            return false;
+        }
+
+        public static void RemovePattern(string name)
+        {
+            string[] patterns = Properties.Settings.Default.patterns.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+            string newPatterns = "";
+
+            for (int i = 0; i < patterns.Length; i++)
+            {
+                string[] pathAndName = patterns[i].Split('|');
+
+                if (pathAndName[1] != name)
+                    newPatterns += patterns[i] + ";";
+            }
+
+            Properties.Settings.Default.patterns = newPatterns;
+
+            Properties.Settings.Default.Save();
         }
     }
 }

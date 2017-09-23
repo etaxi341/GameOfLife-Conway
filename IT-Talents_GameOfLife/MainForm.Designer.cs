@@ -51,7 +51,11 @@
             this.generationLabel = new System.Windows.Forms.Label();
             this.populationLabel = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.paintmode_add = new System.Windows.Forms.Button();
+            this.ContextMenuPatternsElement = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.DelayUpDown)).BeginInit();
+            this.ContextMenuPatternsElement.SuspendLayout();
             this.SuspendLayout();
             // 
             // randomComboBox
@@ -129,7 +133,7 @@
             this.paintmode_glider.Name = "paintmode_glider";
             this.paintmode_glider.Size = new System.Drawing.Size(32, 32);
             this.paintmode_glider.TabIndex = 26;
-            this.ToolTipElement.SetToolTip(this.paintmode_glider, "Add Ship to Grid");
+            this.ToolTipElement.SetToolTip(this.paintmode_glider, "Add Glider to Grid");
             this.paintmode_glider.UseVisualStyleBackColor = true;
             this.paintmode_glider.Click += new System.EventHandler(this.paintmode_glider_Click);
             // 
@@ -302,11 +306,40 @@
             this.label6.TabIndex = 27;
             this.label6.Text = "Population:";
             // 
+            // paintmode_add
+            // 
+            this.paintmode_add.BackgroundImage = global::IT_Talents_GameOfLife.Properties.Resources.icon_pattern_glider;
+            this.paintmode_add.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.paintmode_add.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
+            this.paintmode_add.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.paintmode_add.Location = new System.Drawing.Point(42, 277);
+            this.paintmode_add.Name = "paintmode_add";
+            this.paintmode_add.Size = new System.Drawing.Size(32, 32);
+            this.paintmode_add.TabIndex = 29;
+            this.ToolTipElement.SetToolTip(this.paintmode_add, "Add Pattern");
+            this.paintmode_add.UseVisualStyleBackColor = true;
+            this.paintmode_add.Click += new System.EventHandler(this.paintmode_add_Click);
+            // 
+            // ContextMenuPatternsElement
+            // 
+            this.ContextMenuPatternsElement.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.removeToolStripMenuItem});
+            this.ContextMenuPatternsElement.Name = "ContextMenuPatternsElement";
+            this.ContextMenuPatternsElement.Size = new System.Drawing.Size(153, 48);
+            // 
+            // removeToolStripMenuItem
+            // 
+            this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.removeToolStripMenuItem.Text = "Remove";
+            this.removeToolStripMenuItem.Click += new System.EventHandler(this.removeToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(78, 442);
+            this.Controls.Add(this.paintmode_add);
             this.Controls.Add(this.populationLabel);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.paintmode_glider);
@@ -336,6 +369,7 @@
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
             this.LocationChanged += new System.EventHandler(this.MainForm_LocationChanged);
             ((System.ComponentModel.ISupportInitialize)(this.DelayUpDown)).EndInit();
+            this.ContextMenuPatternsElement.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -364,5 +398,8 @@
         private System.Windows.Forms.Button paintmode_glider;
         private System.Windows.Forms.Label populationLabel;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Button paintmode_add;
+        private System.Windows.Forms.ContextMenuStrip ContextMenuPatternsElement;
+        private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
     }
 }

@@ -58,5 +58,17 @@ namespace IT_Talents_GameOfLife.Properties {
                 this["deadColor"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string patterns {
+            get {
+                return ((string)(this["patterns"]));
+            }
+            set {
+                this["patterns"] = value;
+            }
+        }
     }
 }

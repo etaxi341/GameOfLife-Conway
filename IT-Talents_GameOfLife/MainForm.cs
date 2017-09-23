@@ -28,6 +28,12 @@ namespace IT_Talents_GameOfLife
         //Current Generation
         int generation;
 
+        //Buttons for Patterns
+        List<Button> patternButtons = new List<Button>();
+
+        //Button currently rightclicked
+        string buttonNameRightClicked = "";
+
         #endregion
 
         //Initialize Form
@@ -49,6 +55,33 @@ namespace IT_Talents_GameOfLife
             //Set GridForm instance and show it
             gf = new GridForm();
             gf.Show();
+
+            //Initialize Pattern Buttons
+            InitializePatternButtons();
+        }
+
+        private void InitializePatternButtons()
+        {
+            foreach(Button btn in patternButtons)
+            {
+                this.Controls.Remove(btn);
+            }
+            patternButtons.Clear();
+
+            string[] patterns = Properties.Settings.Default.patterns.Split(';');
+            foreach (string pattern in patterns)
+            {
+                if (pattern != "")
+                {
+                    string[] pathAndName = pattern.Split('|');
+
+                    Bitmap bmp = new Bitmap(pathAndName[0]);
+                    if (bmp != null)
+                        AddPatternButton(pathAndName[1], null);
+                }
+            }
+
+            UpdateAddPatternButton();
         }
 
         //On Movement of Main Form
@@ -134,7 +167,7 @@ namespace IT_Talents_GameOfLife
                 //Set Default Filename
                 savefile.FileName = "GridImage.bmp";
                 //Set Filters
-                savefile.Filter = "Bitmap (*.bmp)|*.bmp|Conway's GoL Format (*.cogol)|*.cogol";
+                savefile.Filter = "Bitmap (*.bmp)|*.bmp";
 
                 //If User presses okay
                 if (savefile.ShowDialog() == DialogResult.OK)
@@ -275,6 +308,109 @@ namespace IT_Talents_GameOfLife
         {
             //Set DrawMode
             gf.paintMode = GridForm.paintmode.glider;
+        }
+
+        //Add new Paintmode
+        private void paintmode_add_Click(object sender, EventArgs e)
+        {
+            //Open File Dialog to select pattern you want to import
+            using (OpenFileDialog dlg = new OpenFileDialog())
+            {
+                //Set Dialog Title
+                dlg.Title = "Load Pattern";
+                //Set Filters
+                dlg.Filter = "Image files (*.jpg, *.png, *.bmp) | *.jpg; *.png; *.bmp";
+
+                //If User presses okay
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    string namePattern = Microsoft.VisualBasic.Interaction.InputBox("Name your Pattern", "New Pattern", "Patternname"); ;
+                    namePattern.Replace("_", " ");
+
+                    if (Patterns.hasName(namePattern))
+                        return;
+
+                    Patterns.AddPattern(dlg.FileName, namePattern);
+                    AddPatternButton(namePattern, null);
+                }
+            }
+        }
+
+        private void AddPatternButton(string nameOfButton, Bitmap icon)
+        {
+            //Generate new Button
+            Button patternButton = new Button();
+            patternButtons.Add(patternButton);
+            this.Controls.Add(patternButton);
+
+
+            //Get Some Variables for New Button Parameters
+            int xPosNew = 4;
+            if (patternButtons.Count % 2 != 0)
+                xPosNew = 42;
+
+            //Set new Button Parameters
+            patternButton.BackgroundImage = icon;
+            patternButton.BackgroundImageLayout = ImageLayout.Center;
+            patternButton.FlatAppearance.BorderColor = Color.DarkGray;
+            patternButton.FlatStyle = FlatStyle.Flat;
+            patternButton.Location = new Point(xPosNew, 277 + (38 * (int)((patternButtons.Count) / 2))); ;
+            patternButton.Name = nameOfButton + "_" + patternButtons.Count;
+            patternButton.Size = paintmode_add.Size;
+            patternButton.TabIndex = paintmode_add.TabIndex;
+            ToolTipElement.SetToolTip(patternButton, "Add " + nameOfButton + " to Grid");
+            patternButton.UseVisualStyleBackColor = true;
+            patternButton.Click += new System.EventHandler(paintmode_custom_Click);
+            patternButton.MouseDown += new System.Windows.Forms.MouseEventHandler(paintmode_custom_MouseRightClick);
+
+            UpdateAddPatternButton();
+        }
+
+        private void UpdateAddPatternButton()
+        {
+            //Get Some Variables for Add Button Parameters
+            int xPosAdd = 4;
+            if (patternButtons.Count % 2 == 0)
+                xPosAdd = 42;
+
+            //Set Add Button Parameters new
+            paintmode_add.Location = new Point(xPosAdd, 277 + (38 * (int)((patternButtons.Count + 1) / 2)));
+            paintmode_add.TabIndex++;
+        }
+
+        private void paintmode_custom_Click(object sender, EventArgs e)
+        {
+            string senderName = ((Button)sender).Name.Split('_')[0];
+
+            gf.currentCustomPattern = Patterns.GetPattern(senderName);
+            gf.paintMode = GridForm.paintmode.custom;
+        }
+
+        private void paintmode_custom_MouseRightClick(object sender, MouseEventArgs e)
+        {
+            string senderName = ((Button)sender).Name.Split('_')[0];
+
+            Debug.WriteLine(senderName);
+
+            switch (e.Button)
+            {
+                case MouseButtons.Left:
+                    break;
+
+                case MouseButtons.Right:
+
+                    ContextMenuPatternsElement.Show(Cursor.Position);
+                    buttonNameRightClicked = senderName;
+
+                    break;
+            }
+        }
+
+        private void removeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Patterns.RemovePattern(buttonNameRightClicked);
+
+            InitializePatternButtons();
         }
     }
 }

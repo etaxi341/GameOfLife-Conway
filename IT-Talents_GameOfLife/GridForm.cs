@@ -55,6 +55,7 @@ namespace IT_Talents_GameOfLife
 
         //Current painting mode
         public paintmode paintMode = paintmode.draw;
+        public bool[,] currentCustomPattern;
 
 #endregion
 
@@ -64,7 +65,8 @@ namespace IT_Talents_GameOfLife
         {
             draw,
             ship,
-            glider
+            glider,
+            custom
         }
 
 #endregion
@@ -181,8 +183,12 @@ namespace IT_Talents_GameOfLife
             //Normalize Image for saving
             initializeGridFromCells(Color.Black, Color.White);
 
+            //Make Bitmap 1bpp so we save some space
+            Rectangle rectangle = new Rectangle(0, 0, image.Width, image.Height);
+            Bitmap bmp1bpp = image.Clone(rectangle, System.Drawing.Imaging.PixelFormat.Format1bppIndexed);
+
             //Save Image to Path
-            image.Save(path);
+            bmp1bpp.Save(path);
 
             //Set Image back to defined colors
             initializeGridFromCells();
@@ -273,6 +279,11 @@ namespace IT_Talents_GameOfLife
         {
             //Get image
             image = new Bitmap(filename);
+
+            //Make image 32bitRGB if its not
+            Rectangle rectangle = new Rectangle(0, 0, image.Width, image.Height);
+            image = image.Clone(rectangle, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+
             //Calculate Aspectratio
             float aspectratio = (float)image.Width / (float)image.Height;
 
@@ -664,6 +675,19 @@ namespace IT_Talents_GameOfLife
 
                     pattern = Patterns.glider;
                 }
+                else if (paintMode == paintmode.custom)
+                {
+                    he = currentCustomPattern.GetLength(0);
+                    wi = currentCustomPattern.GetLength(1);
+
+                    pattern = currentCustomPattern;
+                }
+
+                //Calculate mousePosition on image
+                float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
+                float heightMultiplicator = (float)image.Height / (float)gridPictureBox.Height;
+                int mouseX = (int)(e.X * widthMultiplicator);
+                int mouseY = (int)(e.Y * heightMultiplicator);
 
                 //Every row of pattern
                 for (int y = 0; y < he; y++)
@@ -671,14 +695,6 @@ namespace IT_Talents_GameOfLife
                     //Every collumn of pattern
                     for (int x = 0; x < wi; x++)
                     {
-
-                        //Calculate mousePosition on image
-                        float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
-                        float heightMultiplicator = (float)image.Height / (float)gridPictureBox.Height;
-                        int mouseX = (int)(e.X * widthMultiplicator);
-                        int mouseY = (int)(e.Y * heightMultiplicator);
-
-
                         int yoffset = 0;
                         int xoffset = 0;
 
@@ -695,6 +711,9 @@ namespace IT_Talents_GameOfLife
                     }
                 }
             }
+
+            //Display the image on the Grid Form
+            syncImage();
 
             //Reset paintmode to hand
             paintMode = paintmode.draw;
@@ -763,6 +782,9 @@ namespace IT_Talents_GameOfLife
                 else
                     //Else just paint a dot at Mouse Position
                     PaintAt(e.X, e.Y);
+
+                //Display the image on the Grid Form
+                syncImage();
             }
         }
 
@@ -804,9 +826,6 @@ namespace IT_Talents_GameOfLife
                     if (mouseX < image.Width && mouseY < image.Height)
                         //Set Pixel in paintColor at Mouse Position
                         image.SetPixel(mouseX, mouseY, paintColor);
-
-                    //Display the image on the Grid Form
-                    syncImage();
                 }
             }
             catch
