@@ -49,6 +49,8 @@ namespace IT_Talents_GameOfLife
         Bitmap image;
         //Grid scaled image for displaying
         Bitmap scaledMap;
+        //Grid before hover was added
+        Bitmap beforeHoverMap;
 
         //Is Simulation started
         public bool started = false;
@@ -815,7 +817,9 @@ namespace IT_Talents_GameOfLife
             //Show Hover Effects
             else if (updateThread == null || !updateThread.IsAlive)
             {
-                initializeGridFromCells(MainForm.livingcolor, MainForm.deadcolor);
+                beforeHoverMap = (Bitmap)image.Clone();
+
+                //initializeGridFromCells(MainForm.livingcolor, MainForm.deadcolor);
 
                 //Check if user wants to draw by hand
                 if (paintMode == paintmode.draw)
@@ -877,6 +881,8 @@ namespace IT_Talents_GameOfLife
                 }
                 
                 syncImage();
+
+                image = beforeHoverMap;
             }
         }
 
