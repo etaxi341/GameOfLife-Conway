@@ -18,6 +18,12 @@ Download the .exe [here](https://github.com/etaxi341/GameOfLife-Conway/releases)
 * Extract the .zip file into a new folder
 * Execute .exe file
 
+### 3. Fix Crashes
+
+If any crashes occur try this:
+* Use the Program in a different Folder (Some Anti-Virus Softwares don't like my Program on Desktop and sometimes in Documents)
+* Execute as Admin
+
 ## Using the Program
 
 How to use the Program
