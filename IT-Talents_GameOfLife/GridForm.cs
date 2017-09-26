@@ -53,6 +53,9 @@ namespace IT_Talents_GameOfLife
         //Is Simulation started
         public bool started = false;
 
+        //If Cursor is hidden
+        bool cursorIsHidden = false;
+
         //Current painting mode
         public paintmode paintMode = paintmode.draw;
         public bool[,] currentCustomPattern;
@@ -496,14 +499,19 @@ namespace IT_Talents_GameOfLife
                 Invoke((MethodInvoker)delegate
                 {
                     //Set picturebox to scaled Bitmap
-
                     gridPictureBox.Image = scaledMap;
+
+                    //Sync Picturebox
+                    gridPictureBox.Update();
                 });
             }
             else
             {
                 //Set picturebox to scaled Bitmap
                 gridPictureBox.Image = scaledMap;
+
+                //Sync Picturebox
+                gridPictureBox.Update();
             }
         }
 
@@ -731,6 +739,24 @@ namespace IT_Talents_GameOfLife
         {
             //Stop Painting
             StopPainting();
+
+            //Show Cursor
+            if (cursorIsHidden)
+            {
+                Cursor.Show();
+                cursorIsHidden = false;
+            }
+        }
+
+        //Check if Mosue Entered
+        private void gridPictureBox_MouseEnter(object sender, EventArgs e)
+        {
+            //Hide Cursor
+            if (updateThread == null || !updateThread.IsAlive || !started)
+            {
+                Cursor.Hide();
+                cursorIsHidden = true;
+            }
         }
 
         /// <summary>
@@ -786,6 +812,72 @@ namespace IT_Talents_GameOfLife
                 //Display the image on the Grid Form
                 syncImage();
             }
+            //Show Hover Effects
+            else if (updateThread == null || !updateThread.IsAlive)
+            {
+                initializeGridFromCells(MainForm.livingcolor, MainForm.deadcolor);
+
+                //Check if user wants to draw by hand
+                if (paintMode == paintmode.draw)
+                {
+                    PaintHoverAt(e.X, e.Y);
+                }
+                //Check if user wants to paint a ship
+                else if (paintMode != paintmode.draw)
+                {
+                    //Calculate pattern size
+                    int he = Patterns.ship.GetLength(0);
+                    int wi = Patterns.ship.GetLength(1);
+
+                    bool[,] pattern = Patterns.ship;
+
+                    //Check Paintmode
+                    if (paintMode == paintmode.glider)
+                    {
+                        he = Patterns.glider.GetLength(0);
+                        wi = Patterns.glider.GetLength(1);
+
+                        pattern = Patterns.glider;
+                    }
+                    else if (paintMode == paintmode.custom)
+                    {
+                        he = currentCustomPattern.GetLength(0);
+                        wi = currentCustomPattern.GetLength(1);
+
+                        pattern = currentCustomPattern;
+                    }
+
+                    //Calculate mousePosition on image
+                    float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
+                    float heightMultiplicator = (float)image.Height / (float)gridPictureBox.Height;
+                    int mouseX = (int)(e.X * widthMultiplicator);
+                    int mouseY = (int)(e.Y * heightMultiplicator);
+
+                    //Every row of pattern
+                    for (int y = 0; y < he; y++)
+                    {
+                        //Every collumn of pattern
+                        for (int x = 0; x < wi; x++)
+                        {
+                            int yoffset = 0;
+                            int xoffset = 0;
+
+                            //Make infinity work (Check if out of bounds. If yes subtract/add height/width)
+                            if (mouseY + y >= height && y > 0)
+                                yoffset = -height;
+                            if (mouseX + x >= width && x > 0)
+                                xoffset = -width;
+
+
+                            //If pattern has on position x and y a living cell then add it to the grid
+                            if (pattern[y, x])
+                                PaintHoverAt(mouseX + x + xoffset, mouseY + y + yoffset, true);
+                        }
+                    }
+                }
+                
+                syncImage();
+            }
         }
 
         /// <summary>
@@ -830,9 +922,47 @@ namespace IT_Talents_GameOfLife
             }
             catch
             {
+                
+            }
+        }
+
+        /// <summary>
+        /// Paints Hover at Position X,Y
+        /// </summary>
+        private void PaintHoverAt(int x, int y, bool imagePos = false)
+        {
+            //Try because sometimes by fast clicking it crashes because multiple threads try to get picturebox width
+            try
+            {
+                int mouseX = x;
+                int mouseY = y;
+
+                //If pos has not been calculated for imagepos then calculate here
+                if (!imagePos)
+                {
+                    //Variables to calculate from displayPosition to actuall Cell Position
+                    float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
+                    float heightMultiplicator = (float)image.Height / (float)gridPictureBox.Height;
+
+                    mouseX = (int)(x * widthMultiplicator);
+                    mouseY = (int)(y * heightMultiplicator);
+                }
+
+
+                //If really inside the Cell Grid then
+                if (mouseY >= 0 && mouseX >= 0 && cells.Length > mouseY * image.Width + mouseX)
+                {
+                    //If really inside Image
+                    if (mouseX < image.Width && mouseY < image.Height)
+                        //Set Pixel at Mouse Position
+                        image.SetPixel(mouseX, mouseY, Color.Red);
+                }
+            }
+            catch
+            {
 
             }
         }
-#endregion
+        #endregion
     }
 }

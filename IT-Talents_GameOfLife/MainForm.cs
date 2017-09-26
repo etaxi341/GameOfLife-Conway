@@ -326,8 +326,11 @@ namespace IT_Talents_GameOfLife
                     if (Patterns.HasName(namePattern))
                         return;
 
-                    Patterns.AddPattern(dlg.FileName, namePattern);
-                    AddPatternButton(namePattern, Patterns.GenerateIcon(namePattern));
+                    if (namePattern != "" && namePattern != null)
+                    {
+                        Patterns.AddPattern(dlg.FileName, namePattern);
+                        AddPatternButton(namePattern, Patterns.GenerateIcon(namePattern));
+                    }
                 }
             }
         }

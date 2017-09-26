@@ -96,13 +96,12 @@ namespace IT_Talents_GameOfLife
             }
 
             rectangle = new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
-            //Change image format to 1bpp so it uses less storage
+            //Change image format to 1bpp so it uses less storage and crop
             bmp = bmp.Clone(rectangle, System.Drawing.Imaging.PixelFormat.Format1bppIndexed);
 
             string savePath = GetSaveFolder() + name + ".bmp";
-
-            Directory.CreateDirectory(GetSaveFolder());
-
+            if (!Directory.Exists(GetSaveFolder()))
+                Directory.CreateDirectory(GetSaveFolder());
             bmp.Save(savePath);
         }
 

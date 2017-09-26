@@ -42,6 +42,7 @@
             this.gridPictureBox.TabIndex = 0;
             this.gridPictureBox.TabStop = false;
             this.gridPictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
+            this.gridPictureBox.MouseEnter += new System.EventHandler(this.gridPictureBox_MouseEnter);
             this.gridPictureBox.MouseLeave += new System.EventHandler(this.pictureBox1_MouseLeave);
             this.gridPictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
             this.gridPictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
