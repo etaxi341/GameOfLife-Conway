@@ -5,11 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Configuration;
+using System.Diagnostics;
+using System.IO;
+using System.Windows.Forms;
 
 namespace IT_Talents_GameOfLife
 {
     class Patterns
     {
+        /// <summary>
+        /// Ship Pixels
+        /// </summary>
         public static bool[,] ship = new bool[4 , 5]
         {
             { false, true, false, false, true },
@@ -18,6 +24,9 @@ namespace IT_Talents_GameOfLife
             { true, true, true, true, false}
         };
 
+        /// <summary>
+        /// Glider Pixels
+        /// </summary>
         public static bool[,] glider = new bool[3, 3]
         {
             { true, false, true },
@@ -25,6 +34,9 @@ namespace IT_Talents_GameOfLife
             { false, true, false }
         };
 
+        /// <summary>
+        /// Rotate any Pattern by 90 Degrees to the right
+        /// </summary>
         public static bool[,] RotatePatternBy90(bool[,] mat)
         {
             int M = mat.GetLength(0);
@@ -40,31 +52,73 @@ namespace IT_Talents_GameOfLife
             return ret;
         }
 
+        /// <summary>
+        /// Add a new Pattern with path and name
+        /// </summary>
         public static void AddPattern(string path, string name)
         {
-            Properties.Settings.Default.patterns += path + "|" + name + ";";
-            Properties.Settings.Default.Save();
+            Bitmap bmp = new Bitmap(path);
+            Rectangle rectangle = new Rectangle(0, 0, bmp.Width, bmp.Height);
+
+            //Make sure its 32bppRgb;
+            bmp = bmp.Clone(rectangle, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+
+            //Default Max and Min Values
+            int minX = bmp.Width - 1;
+            int maxX = 0;
+            int minY = bmp.Height - 1;
+            int maxY = 0;
+
+            //Crop the image so no useless white spots are on it
+            for (int y = 0; y < bmp.Height; y++)
+            {
+                for (int x = 0; x < bmp.Width; x++)
+                {
+                    if (x < minX || x > maxX || y < minY || y > maxY)
+                    {
+                        Color c = bmp.GetPixel(x, y);
+                        int darkness = c.R + c.G + c.B;
+
+                        if (darkness < 384)
+                        {
+                            if (x < minX)
+                                minX = x;
+                            if (x > maxX)
+                                maxX = x;
+
+                            if (y < minY)
+                                minY = y;
+                            if (y > maxY)
+                                maxY = y;
+                        }
+                    }
+                }
+            }
+
+            rectangle = new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
+            //Change image format to 1bpp so it uses less storage
+            bmp = bmp.Clone(rectangle, System.Drawing.Imaging.PixelFormat.Format1bppIndexed);
+
+            string savePath = GetSaveFolder() + name + ".bmp";
+
+            Directory.CreateDirectory(GetSaveFolder());
+
+            bmp.Save(savePath);
         }
 
+        /// <summary>
+        /// Get Patternpixels by name
+        /// </summary>
         public static bool[,] GetPattern(string name)
         {
-            string[] patterns = Properties.Settings.Default.patterns.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-
-            Bitmap bmp = null;
-
-            foreach (string pattern in patterns)
-            {
-                string[] pathAndName = pattern.Split('|');
-
-                if (pathAndName[1] == name)
-                    bmp = new Bitmap(pathAndName[0]);
-            }
+            Bitmap bmp = GetBitmap(name);
 
             if (bmp == null)
                 return null;
 
             bool[,] patternGrid = new bool[bmp.Height, bmp.Width];
 
+            //Make BMP to bool Matrix
             for (int y = 0; y < bmp.Height; y++)
             {
                 for (int x = 0; x < bmp.Width; x++)
@@ -83,37 +137,153 @@ namespace IT_Talents_GameOfLife
             return patternGrid;
         }
 
-        public static bool hasName(string name)
+        /// <summary>
+        /// Get Bitmap of Pattern by name
+        /// </summary>
+        public static Bitmap GetBitmap(string name)
         {
-            string[] patterns = Properties.Settings.Default.patterns.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            string savePath = GetSaveFolder() + name + ".bmp";
+            
+            Bitmap bmp = new Bitmap(savePath);
+            Rectangle rectangle = new Rectangle(0, 0, bmp.Width, bmp.Height);
+            //Make Bitmap 32Bpprgb because 1bpp cannot be edited with setpixel
+            bmp = bmp.Clone(rectangle, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
 
-            foreach (string pattern in patterns)
+            return bmp;
+        }
+
+        /// <summary>
+        /// Remove Pattern by name
+        /// </summary>
+        public static void RemovePattern(string name)
+        {
+            string savePath = GetSaveFolder() + name + ".bmp";
+
+            //Collect Garbage so file is not locked anymore
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            //Delete it
+            File.Delete(savePath);
+        }
+
+        /// <summary>
+        /// Get All Paths where a Pattern is at
+        /// </summary>
+        public static string[] GetAllPatternLocations()
+        {
+            string savePath = GetSaveFolder();
+            savePath = new Uri(savePath).LocalPath;
+
+            //If no savefolder exists then there cannot be any patterns so return empty string array
+            if (!Directory.Exists(savePath))
+                return new string[0];
+
+            string[] allFiles = Directory.GetFiles(savePath);
+
+            //Every file thats not an bmp will be ignored
+            for(int i = 0; i < allFiles.Length; i++)
             {
-                string[] pathAndName = pattern.Split('|');
+                if (!allFiles[i].EndsWith(".bmp"))
+                    allFiles[i] = "";
+            }
 
-                if (pathAndName[1] == name)
+            //Remove ignored files from array (remove empty entrys)
+            allFiles = allFiles.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+
+            return allFiles;
+        }
+
+        /// <summary>
+        /// Get All Names of existing Patterns
+        /// </summary>
+        public static string[] GetAllPatternNames()
+        {
+            string[] paths = GetAllPatternLocations();
+
+            for (int i = 0; i < paths.Length; i++)
+            {
+                int idx = paths[i].LastIndexOf('\\');
+
+                paths[i] = paths[i].Substring(idx + 1).Split('.')[0];
+            }
+
+            return paths;
+        }
+
+        /// <summary>
+        /// Check if Pattern exists by name
+        /// </summary>
+        public static bool HasName(string name)
+        {
+            foreach(string str in GetAllPatternNames())
+            {
+                if (str == name)
                     return true;
             }
             return false;
         }
 
-        public static void RemovePattern(string name)
+        /// <summary>
+        /// Get Folder where Patterns are saved in
+        /// </summary>
+        private static string GetSaveFolder()
         {
-            string[] patterns = Properties.Settings.Default.patterns.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            return Path.GetDirectoryName(Application.ExecutablePath) + "\\patterns\\";
+        }
 
-            string newPatterns = "";
+        /// <summary>
+        /// Generates an Icon as Bitmap from Pattern by name
+        /// </summary>
+        public static Bitmap GenerateIcon(string name)
+        {
+            string savePath = GetSaveFolder() + name + ".bmp";
+            
+            Bitmap bmp = new Bitmap(savePath);
+            float aspectRatio = (float)bmp.Width / (float)bmp.Height;
 
-            for (int i = 0; i < patterns.Length; i++)
+            //Default width / Max width
+            int width = 26;
+            int height = 26;
+
+            //If wider than high then make height smaller. If higher than wide than make width smaller
+            if (aspectRatio > 1)
             {
-                string[] pathAndName = patterns[i].Split('|');
-
-                if (pathAndName[1] != name)
-                    newPatterns += patterns[i] + ";";
+                height = (int)(width / aspectRatio);
+            }
+            else if (aspectRatio < 1)
+            {
+                width = (int)(width * aspectRatio);
             }
 
-            Properties.Settings.Default.patterns = newPatterns;
+            //Scaled Bitmap instance
+            Bitmap scaledMap = new Bitmap(width, height);
 
-            Properties.Settings.Default.Save();
+            Graphics graph = Graphics.FromImage(scaledMap);
+
+            //Set PixelOffsetMode to Half so the left and top row get scaled correctly
+            graph.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
+            //Set Interpolate to NearestNeighbour so the pixels are hard and not interpolated
+            graph.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+            //Scale Image
+            graph.DrawImage(bmp, 0, 0, width, height);
+
+            //Recolor to match button colors
+            for (int y = 0; y < scaledMap.Height; y++)
+            {
+                for (int x = 0; x < scaledMap.Width; x++)
+                {
+                    Color c = scaledMap.GetPixel(x, y);
+                    int darkness = c.R + c.G + c.B;
+
+                    if (darkness >= 384)
+                        scaledMap.SetPixel(x, y, Color.FromArgb(0, 0, 0, 0));
+                    else
+                        scaledMap.SetPixel(x, y, Color.FromArgb(149, 149, 149));
+                }
+
+            }
+
+            return scaledMap;
         }
     }
 }

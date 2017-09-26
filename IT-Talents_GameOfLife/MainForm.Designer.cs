@@ -44,6 +44,7 @@
             this.import = new System.Windows.Forms.Button();
             this.nextstep = new System.Windows.Forms.Button();
             this.start = new System.Windows.Forms.Button();
+            this.paintmode_add = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -51,7 +52,6 @@
             this.generationLabel = new System.Windows.Forms.Label();
             this.populationLabel = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
-            this.paintmode_add = new System.Windows.Forms.Button();
             this.ContextMenuPatternsElement = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.DelayUpDown)).BeginInit();
@@ -97,6 +97,7 @@
             // 
             // livingColor
             // 
+            this.livingColor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.livingColor.BackColor = System.Drawing.Color.Black;
             this.livingColor.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.livingColor.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
@@ -111,6 +112,7 @@
             // 
             // deadColor
             // 
+            this.deadColor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.deadColor.BackColor = System.Drawing.Color.White;
             this.deadColor.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.deadColor.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
@@ -246,6 +248,20 @@
             this.start.UseVisualStyleBackColor = true;
             this.start.Click += new System.EventHandler(this.start_Click);
             // 
+            // paintmode_add
+            // 
+            this.paintmode_add.BackgroundImage = global::IT_Talents_GameOfLife.Properties.Resources.icon_pattern_add;
+            this.paintmode_add.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.paintmode_add.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
+            this.paintmode_add.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.paintmode_add.Location = new System.Drawing.Point(42, 277);
+            this.paintmode_add.Name = "paintmode_add";
+            this.paintmode_add.Size = new System.Drawing.Size(32, 32);
+            this.paintmode_add.TabIndex = 29;
+            this.ToolTipElement.SetToolTip(this.paintmode_add, "Add Pattern");
+            this.paintmode_add.UseVisualStyleBackColor = true;
+            this.paintmode_add.Click += new System.EventHandler(this.paintmode_add_Click);
+            // 
             // label1
             // 
             this.label1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
@@ -306,31 +322,17 @@
             this.label6.TabIndex = 27;
             this.label6.Text = "Population:";
             // 
-            // paintmode_add
-            // 
-            this.paintmode_add.BackgroundImage = global::IT_Talents_GameOfLife.Properties.Resources.icon_pattern_glider;
-            this.paintmode_add.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.paintmode_add.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
-            this.paintmode_add.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.paintmode_add.Location = new System.Drawing.Point(42, 277);
-            this.paintmode_add.Name = "paintmode_add";
-            this.paintmode_add.Size = new System.Drawing.Size(32, 32);
-            this.paintmode_add.TabIndex = 29;
-            this.ToolTipElement.SetToolTip(this.paintmode_add, "Add Pattern");
-            this.paintmode_add.UseVisualStyleBackColor = true;
-            this.paintmode_add.Click += new System.EventHandler(this.paintmode_add_Click);
-            // 
             // ContextMenuPatternsElement
             // 
             this.ContextMenuPatternsElement.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.removeToolStripMenuItem});
             this.ContextMenuPatternsElement.Name = "ContextMenuPatternsElement";
-            this.ContextMenuPatternsElement.Size = new System.Drawing.Size(153, 48);
+            this.ContextMenuPatternsElement.Size = new System.Drawing.Size(118, 26);
             // 
             // removeToolStripMenuItem
             // 
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.removeToolStripMenuItem.Text = "Remove";
             this.removeToolStripMenuItem.Click += new System.EventHandler(this.removeToolStripMenuItem_Click);
             // 

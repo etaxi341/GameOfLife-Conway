@@ -68,17 +68,13 @@ namespace IT_Talents_GameOfLife
             }
             patternButtons.Clear();
 
-            string[] patterns = Properties.Settings.Default.patterns.Split(';');
-            foreach (string pattern in patterns)
+            foreach (string name in Patterns.GetAllPatternNames())
             {
-                if (pattern != "")
-                {
-                    string[] pathAndName = pattern.Split('|');
+                Debug.WriteLine(name);
+                Bitmap bmp = Patterns.GetBitmap(name);
 
-                    Bitmap bmp = new Bitmap(pathAndName[0]);
-                    if (bmp != null)
-                        AddPatternButton(pathAndName[1], null);
-                }
+                if (bmp != null)
+                    AddPatternButton(name, Patterns.GenerateIcon(name));
             }
 
             UpdateAddPatternButton();
@@ -327,15 +323,18 @@ namespace IT_Talents_GameOfLife
                     string namePattern = Microsoft.VisualBasic.Interaction.InputBox("Name your Pattern", "New Pattern", "Patternname"); ;
                     namePattern.Replace("_", " ");
 
-                    if (Patterns.hasName(namePattern))
+                    if (Patterns.HasName(namePattern))
                         return;
 
                     Patterns.AddPattern(dlg.FileName, namePattern);
-                    AddPatternButton(namePattern, null);
+                    AddPatternButton(namePattern, Patterns.GenerateIcon(namePattern));
                 }
             }
         }
 
+        /// <summary>
+        /// Add new Button for a new Pattern
+        /// </summary>
         private void AddPatternButton(string nameOfButton, Bitmap icon)
         {
             //Generate new Button
@@ -366,18 +365,33 @@ namespace IT_Talents_GameOfLife
             UpdateAddPatternButton();
         }
 
+        /// <summary>
+        /// Update the Position of the "Add Pattern" Button
+        /// </summary>
         private void UpdateAddPatternButton()
         {
             //Get Some Variables for Add Button Parameters
             int xPosAdd = 4;
             if (patternButtons.Count % 2 == 0)
                 xPosAdd = 42;
+            int yPos = 277 + (38 * (int)((patternButtons.Count + 1) / 2));
 
             //Set Add Button Parameters new
-            paintmode_add.Location = new Point(xPosAdd, 277 + (38 * (int)((patternButtons.Count + 1) / 2)));
+            paintmode_add.Location = new Point(xPosAdd, yPos);
             paintmode_add.TabIndex++;
+
+            //Resize MainForm if too many buttons
+            if (yPos > 354)
+            {
+                this.Size = new Size(this.Size.Width, yPos + 128);
+            }
+            else
+            {
+                this.Size = new Size(this.Size.Width, 481);
+            }
         }
 
+        //Set Paintmode to custom
         private void paintmode_custom_Click(object sender, EventArgs e)
         {
             string senderName = ((Button)sender).Name.Split('_')[0];
@@ -386,6 +400,7 @@ namespace IT_Talents_GameOfLife
             gf.paintMode = GridForm.paintmode.custom;
         }
 
+        //Trigger Remove Menu
         private void paintmode_custom_MouseRightClick(object sender, MouseEventArgs e)
         {
             string senderName = ((Button)sender).Name.Split('_')[0];
@@ -406,6 +421,7 @@ namespace IT_Talents_GameOfLife
             }
         }
 
+        //Removes a Pattern
         private void removeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Patterns.RemovePattern(buttonNameRightClicked);
