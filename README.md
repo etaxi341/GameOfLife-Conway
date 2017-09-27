@@ -42,6 +42,7 @@ How to use the Program
 * Add your own custom Patterns
 * Set Alive and Dead Color
 * Change Pattern rotation with arrow keys (right,left)
+* Move the Grid when holding Middle Mouse Button down
 
 ## Built With
 
