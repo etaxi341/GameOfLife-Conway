@@ -41,6 +41,7 @@ How to use the Program
 * Instantiate Patterns on the grid
 * Add your own custom Patterns
 * Set Alive and Dead Color
+* Change Pattern rotation with arrow keys (right,left)
 
 ## Built With
 
