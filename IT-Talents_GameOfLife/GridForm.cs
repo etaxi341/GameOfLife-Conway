@@ -35,10 +35,6 @@ namespace IT_Talents_GameOfLife
         //Set Running again when game was running before painting
         bool wasRunningBeforePaint = false;
 
-        //Grid width defined by image size
-        public int width;
-        public int height;
-
         //Max image size that can be imported otherwise it will be downscaled for performance reasons
         int maxSize = 512;
 
@@ -65,6 +61,15 @@ namespace IT_Talents_GameOfLife
         //Old Mouse Position to connect lines
         int oldPaintX = -1, oldPaintY = -1;
 
+        //Mouse StartPos for Selection
+        int mouseStartPosSelectX = -1, mouseStartPosSelectY = -1;
+        int mouseStartPosSelectEndX = -1, mouseStartPosSelectEndY = -1;
+        bool isSelected = false;
+
+        //Move image around
+        bool isImageGrabbed = false;
+        int grabPositionX = -1, grabPositionY = -1;
+
         //Rotation of Pattern   --- 0 = 0 Degree --- 1 = 90 Degree --- 2 = 180 Degree --- 3 = -90 Degree
         public int currenRotationPattern = 0;
 
@@ -77,7 +82,9 @@ namespace IT_Talents_GameOfLife
             draw,
             ship,
             glider,
-            custom
+            custom,
+            select,
+            grab
         }
 
 #endregion
@@ -178,6 +185,9 @@ namespace IT_Talents_GameOfLife
             initializeGridFromImage();
             //Reset Generation
             MainForm.instance.SetGeneration(0);
+
+            //Delete scaled Map so a new one with the correct size gets generated
+            scaledMap = null;
             //Display the image on the Grid Form
             syncImage();
         }
@@ -231,6 +241,8 @@ namespace IT_Talents_GameOfLife
             generateRandomImage(size, size);
             //Reset Generation
             MainForm.instance.SetGeneration(0);
+            //Delete scaled Map so a new one with the correct size gets generated
+            scaledMap = null;
             //Display the image on the Grid Form
             syncImage();
         }
@@ -257,6 +269,8 @@ namespace IT_Talents_GameOfLife
             generateClearImage(size, size);
             //Reset Generation
             MainForm.instance.SetGeneration(0);
+            //Delete scaled Map so a new one with the correct size gets generated
+            scaledMap = null;
             //Display the image on the Grid Form
             syncImage();
         }
@@ -329,9 +343,6 @@ namespace IT_Talents_GameOfLife
             Properties.Settings.Default.lastImagePath = filename;
             Properties.Settings.Default.Save();
 
-            this.width = image.Width;
-            this.height = image.Height;
-
             //Fitting the Form to image aspect ratio
             rescaleFormToImage();
         }
@@ -351,14 +362,11 @@ namespace IT_Talents_GameOfLife
         /// </summary>
         public void initializeGridFromImage()
         {
-            width = image.Width;
-            height = image.Height;
+            cells = new BitArray(image.Width * image.Height);
 
-            cells = new BitArray(width * height);
-
-            for (int y = 0; y < height; y++)
+            for (int y = 0; y < image.Height; y++)
             {
-                for (int x = 0; x < width; x++)
+                for (int x = 0; x < image.Width; x++)
                 {
                     Color c = image.GetPixel(x, y);
                     int darkness = c.R + c.G + c.B;
@@ -367,10 +375,10 @@ namespace IT_Talents_GameOfLife
                     if (darkness >= 384)
                     {
                         val = MainForm.deadcolor;
-                        cells[(y * width + x)] = false;
+                        cells[(y * image.Width + x)] = false;
                     }
                     else
-                        cells[(y * width + x)] = true;
+                        cells[(y * image.Width + x)] = true;
 
                     image.SetPixel(x, y, val);
                 }
@@ -382,12 +390,12 @@ namespace IT_Talents_GameOfLife
         /// </summary>
         public void initializeGridFromCells(Color living, Color dead)
         {
-            for (int y = 0; y < height; y++)
+            for (int y = 0; y < image.Height; y++)
             {
-                for (int x = 0; x < width; x++)
+                for (int x = 0; x < image.Width; x++)
                 {
                     Color val = living;
-                    if (!cells[(y * width + x)])
+                    if (!cells[(y * image.Width + x)])
                         val = dead;
 
                     image.SetPixel(x, y, val);
@@ -410,6 +418,9 @@ namespace IT_Talents_GameOfLife
         {
             //Making tempcell variable so we still have cell data before the change
             BitArray tempcells = (BitArray)cells.Clone();
+
+            int width = image.Width;
+            int height = image.Height;
 
             Color val;
             int neighbourLifes;
@@ -487,7 +498,7 @@ namespace IT_Talents_GameOfLife
         /// <summary>
         /// Sync cellimage with displayed Image in pictureBox
         /// </summary>
-        public void syncImage()
+        public void syncImage(bool updatePictureboximmediately = false)
         {
             //Make new Bitmap for the displayImage (Could be scaled) Only do this once so we save about 120MB Memory (Garbage Collector takes some time until he destroys it)
             if (scaledMap == null)
@@ -510,7 +521,8 @@ namespace IT_Talents_GameOfLife
                     gridPictureBox.Image = scaledMap;
 
                     //Sync Picturebox
-                    gridPictureBox.Update();
+                    if (updatePictureboximmediately)
+                        gridPictureBox.Update();
                 });
             }
             else
@@ -519,7 +531,8 @@ namespace IT_Talents_GameOfLife
                 gridPictureBox.Image = scaledMap;
 
                 //Sync Picturebox
-                gridPictureBox.Update();
+                if (updatePictureboximmediately)
+                    gridPictureBox.Update();
             }
         }
 
@@ -566,9 +579,6 @@ namespace IT_Talents_GameOfLife
             //Create new Bitmap for noisemap
             image = new Bitmap(width, height);
 
-            this.width = width;
-            this.height = height;
-
             //Set new cell amount
             cells = new BitArray(width * height);
 
@@ -610,11 +620,12 @@ namespace IT_Talents_GameOfLife
             //Create new Bitmap for white Image
             image = new Bitmap(width, height);
 
-            this.width = width;
-            this.height = height;
-
             //Set new cell amount
             cells = new BitArray(width * height);
+
+            //Reset lastImagePath because the currently displayed image does not exist as a file
+            Properties.Settings.Default.lastImagePath = "";
+            Properties.Settings.Default.Save();
 
             //Set Grid Form Size to correct Size
             this.Size = new Size(512 + 16, 512 + 39);
@@ -651,13 +662,27 @@ namespace IT_Talents_GameOfLife
             switch (e.Button)
             {
                 case MouseButtons.Left:
+                    isImageGrabbed = false;
                     //Set Color Black
                     paintColor = MainForm.livingcolor;
+
+                    if (paintMode == paintmode.grab)
+                        paintMode = paintmode.draw;
                     break;
 
                 case MouseButtons.Right:
+                    isImageGrabbed = false;
                     //Set Color White
                     paintColor = MainForm.deadcolor;
+
+                    if (paintMode == paintmode.grab)
+                        paintMode = paintmode.draw;
+                    break;
+
+                case MouseButtons.Middle:
+                    isImageGrabbed = true;
+                    paintColor = MainForm.deadcolor;
+                    paintMode = paintmode.grab;
                     break;
             }
 
@@ -675,7 +700,7 @@ namespace IT_Talents_GameOfLife
                 PaintAt(e.X, e.Y);
             }
             //Check if user wants to paint a ship and is using leftclick (color livingcolor = leftclick)
-            else if (paintMode != paintmode.draw && paintColor == MainForm.livingcolor)
+            else if ((paintMode == paintmode.ship || paintMode == paintmode.glider || paintMode == paintmode.custom) && paintColor == MainForm.livingcolor)
             {
                 bool[,] pattern = Patterns.ship;
 
@@ -710,10 +735,10 @@ namespace IT_Talents_GameOfLife
                         int xoffset = 0;
 
                         //Make infinity work (Check if out of bounds. If yes subtract/add height/width)
-                        if (mouseY + y >= height && y > 0)
-                            yoffset = -height;
-                        if (mouseX + x >= width && x > 0)
-                            xoffset = -width;
+                        if (mouseY + y >= image.Height && y > 0)
+                            yoffset = -image.Height;
+                        if (mouseX + x >= image.Width && x > 0)
+                            xoffset = -image.Width;
 
 
                         //If pattern has on position x and y a living cell then add it to the grid
@@ -722,12 +747,28 @@ namespace IT_Talents_GameOfLife
                     }
                 }
             }
+            //Select something on the grid
+            else if (paintMode == paintmode.select && paintColor == MainForm.livingcolor)
+            {
+                mouseStartPosSelectX = mouseDownX;
+                mouseStartPosSelectY = mouseDownY;
+            }
+            else if (paintMode == paintmode.grab && paintColor == MainForm.deadcolor)
+            {
+                float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
+                float heightMultiplicator = (float)image.Height / (float)gridPictureBox.Height;
+                int mouseX = (int)(e.X * widthMultiplicator);
+                int mouseY = (int)(e.Y * heightMultiplicator);
+
+                grabPositionX = mouseX;
+                grabPositionY = mouseY;
+            }
 
             //Display the image on the Grid Form
-            syncImage();
+            syncImage(true);
 
             //Reset paintmode to hand
-            if (paintColor == MainForm.deadcolor)
+            if (paintColor == MainForm.deadcolor && paintMode != paintmode.grab)
                 paintMode = paintmode.draw;
         }
 
@@ -736,6 +777,13 @@ namespace IT_Talents_GameOfLife
         {
             //Stop Painting
             StopPainting();
+
+            switch (e.Button)
+            {
+                case MouseButtons.Middle:
+                    isImageGrabbed = false;
+                    break;
+            }
         }
 
         //Check if Mouse Left
@@ -768,6 +816,11 @@ namespace IT_Talents_GameOfLife
         /// </summary>
         private void StopPainting()
         {
+            if (isPainting)
+            {
+                initializeGridFromImage();
+            }
+
             //If the simulation was running before painting then restart it
             if (wasRunningBeforePaint && (updateThread == null || !updateThread.IsAlive))
             {
@@ -786,6 +839,10 @@ namespace IT_Talents_GameOfLife
 
             //Reset oldPaint Pos
             oldPaintX = oldPaintY = -1;
+
+            isSelected = true;
+
+            grabPositionX = grabPositionY = -1;
 
             //Stop Painting Mode
             isPainting = false;
@@ -817,7 +874,7 @@ namespace IT_Talents_GameOfLife
                     PaintAt(e.X, e.Y, false, true);
 
                 //Display the image on the Grid Form
-                syncImage();
+                syncImage(true);
             }
             //Show Hover Effects
             else if (updateThread == null || !updateThread.IsAlive)
@@ -831,15 +888,120 @@ namespace IT_Talents_GameOfLife
                 {
                     PaintHoverAt(e.X, e.Y);
                 }
+                else if (paintMode == paintmode.grab)
+                {
+                    PaintHoverAt(e.X, e.Y);
+                }
                 //Check if user wants to paint a ship
                 else if (paintMode != paintmode.draw)
                 {
                     UpdateHoverPositionAndRotation(e.X, e.Y);
                 }
                 
-                syncImage();
+                syncImage(true);
 
                 image = beforeHoverMap;
+            }
+
+
+
+            if (!isSelected)
+            {
+                mouseStartPosSelectEndX = e.X;
+                mouseStartPosSelectEndY = e.Y;
+            }
+            if (paintMode == paintmode.grab && paintColor == MainForm.deadcolor && isImageGrabbed)
+            {
+                float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
+                float heightMultiplicator = (float)image.Height / (float)gridPictureBox.Height;
+                int mouseX = (int)(e.X * widthMultiplicator);
+                int mouseY = (int)(e.Y * heightMultiplicator);
+
+                while (mouseX < grabPositionX)
+                {
+                    //Every Row of Image
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        //Store first item of row to set it as last item later
+                        bool firstItem = cells[y * image.Width];
+
+                        //Every Collumn of Image
+                        for (int x = 0; x < image.Width - 1; x++)
+                        {
+                            cells[y * image.Width + x] = cells[y * image.Width + x + 1];
+                        }
+
+                        //Set first item as last item
+                        cells[y * image.Width + image.Width - 1] = firstItem;
+                    }
+                    grabPositionX--;
+                }
+
+                while (mouseX > grabPositionX)
+                {
+                    //Every Row of Image
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        //Store last item of row to set it as first item later
+                        bool lastItem = cells[y * image.Width + image.Width - 1];
+
+                        //Every Collumn of Image
+                        for (int x = image.Width - 1; x > 0; x--)
+                        {
+                            cells[y * image.Width + x] = cells[y * image.Width + x - 1];
+                        }
+
+                        //Set last item as first item
+                        cells[y * image.Width] = lastItem;
+                    }
+                    grabPositionX++;
+                }
+
+                while (mouseY < grabPositionY)
+                {
+                    //Every Row of Image
+                    for (int x = 0; x < image.Width; x++)
+                    {
+                        //Store first item of collumn to set it as last item later
+                        bool firstItem = cells[x];
+
+                        //Every Collumn of Image
+                        for (int y = 0; y < image.Height - 1; y++)
+                        {
+                            cells[y * image.Width + x] = cells[(y + 1) * image.Width + x];
+                        }
+
+                        //Set first item as last item
+                        cells[(image.Height - 1) * image.Width + x] = firstItem;
+                    }
+                    grabPositionY--;
+                }
+
+                while (mouseY > grabPositionY)
+                {
+                    //Every Row of Image
+                    for (int x = 0; x < image.Width; x++)
+                    {
+                        //Store last item of collumn to set it as first item later
+                        bool lastItem = cells[(image.Height - 1) * image.Width + x];
+
+                        //Every Collumn of Image
+                        for (int y = image.Height - 1; y > 0; y--)
+                        {
+                            cells[y * image.Width + x] = cells[(y - 1) * image.Width + x];
+                        }
+
+                        //Set last item as first item
+                        cells[x] = lastItem;
+                    }
+                    grabPositionY++;
+                }
+
+
+
+
+                initializeGridFromCells();
+                syncImage(true);
             }
         }
 
@@ -878,10 +1040,10 @@ namespace IT_Talents_GameOfLife
                     int xoffset = 0;
 
                     //Make infinity work (Check if out of bounds. If yes subtract/add height/width)
-                    if (mouseY + y >= height && y > 0)
-                        yoffset = -height;
-                    if (mouseX + x >= width && x > 0)
-                        xoffset = -width;
+                    if (mouseY + y >= image.Height && y > 0)
+                        yoffset = -image.Height;
+                    if (mouseX + x >= image.Width && x > 0)
+                        xoffset = -image.Width;
 
 
                     //If pattern has on position x and y a living cell then add it to the grid
@@ -1009,7 +1171,7 @@ namespace IT_Talents_GameOfLife
                 Point mousePos = gridPictureBox.PointToClient(Cursor.Position);
 
                 UpdateHoverPositionAndRotation(mousePos.X, mousePos.Y);
-                syncImage();
+                syncImage(true);
 
                 image = beforeHoverMap;
             }
@@ -1025,7 +1187,7 @@ namespace IT_Talents_GameOfLife
                 Point mousePos = gridPictureBox.PointToClient(Cursor.Position);
 
                 UpdateHoverPositionAndRotation(mousePos.X, mousePos.Y);
-                syncImage();
+                syncImage(true);
 
                 image = beforeHoverMap;
             }

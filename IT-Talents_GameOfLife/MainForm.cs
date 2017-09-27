@@ -348,7 +348,7 @@ namespace IT_Talents_GameOfLife
 
             //Get Some Variables for New Button Parameters
             int xPosNew = 4;
-            if (patternButtons.Count % 2 != 0)
+            if ((patternButtons.Count + 1) % 2 != 0)
                 xPosNew = 42;
 
             //Set new Button Parameters
@@ -356,7 +356,7 @@ namespace IT_Talents_GameOfLife
             patternButton.BackgroundImageLayout = ImageLayout.Center;
             patternButton.FlatAppearance.BorderColor = Color.DarkGray;
             patternButton.FlatStyle = FlatStyle.Flat;
-            patternButton.Location = new Point(xPosNew, 277 + (38 * (int)((patternButtons.Count) / 2))); ;
+            patternButton.Location = new Point(xPosNew, 277 + (38 * (int)((patternButtons.Count + 1) / 2))); ;
             patternButton.Name = nameOfButton + "_" + patternButtons.Count;
             patternButton.Size = paintmode_add.Size;
             patternButton.TabIndex = paintmode_add.TabIndex;
@@ -375,9 +375,9 @@ namespace IT_Talents_GameOfLife
         {
             //Get Some Variables for Add Button Parameters
             int xPosAdd = 4;
-            if (patternButtons.Count % 2 == 0)
+            if ((patternButtons.Count + 1) % 2 == 0)
                 xPosAdd = 42;
-            int yPos = 277 + (38 * (int)((patternButtons.Count + 1) / 2));
+            int yPos = 277 + (38 * (int)((patternButtons.Count + 2) / 2));
 
             //Set Add Button Parameters new
             paintmode_add.Location = new Point(xPosAdd, yPos);
@@ -437,6 +437,11 @@ namespace IT_Talents_GameOfLife
             gf.ArrowInput(keyData);
 
             return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        private void paintmode_select_Click(object sender, EventArgs e)
+        {
+            gf.paintMode = GridForm.paintmode.select;
         }
     }
 }
