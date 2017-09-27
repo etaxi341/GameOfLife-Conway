@@ -62,6 +62,9 @@ namespace IT_Talents_GameOfLife
         public paintmode paintMode = paintmode.draw;
         public bool[,] currentCustomPattern;
 
+        //Rotation of Pattern   --- 0 = 0 Degree --- 1 = 90 Degree --- 2 = 180 Degree --- 3 = -90 Degree
+        public int currenRotationPattern = 0;
+
 #endregion
 
 #region Enums
@@ -671,27 +674,22 @@ namespace IT_Talents_GameOfLife
             //Check if user wants to paint a ship and is using leftclick (color livingcolor = leftclick)
             else if (paintMode != paintmode.draw && paintColor == MainForm.livingcolor)
             {
-                //Calculate pattern size
-                int he = Patterns.ship.GetLength(0);
-                int wi = Patterns.ship.GetLength(1);
-
                 bool[,] pattern = Patterns.ship;
 
                 //Check Paintmode
                 if (paintMode == paintmode.glider)
-                {
-                    he = Patterns.glider.GetLength(0);
-                    wi = Patterns.glider.GetLength(1);
-
                     pattern = Patterns.glider;
-                }
                 else if (paintMode == paintmode.custom)
-                {
-                    he = currentCustomPattern.GetLength(0);
-                    wi = currentCustomPattern.GetLength(1);
-
                     pattern = currentCustomPattern;
+
+                for (int i = 0; i < currenRotationPattern; i++)
+                {
+                    pattern = Patterns.RotatePatternBy90(pattern);
                 }
+
+                //Calculate pattern size
+                int he = pattern.GetLength(0);
+                int wi = pattern.GetLength(1);
 
                 //Calculate mousePosition on image
                 float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
@@ -726,7 +724,8 @@ namespace IT_Talents_GameOfLife
             syncImage();
 
             //Reset paintmode to hand
-            paintMode = paintmode.draw;
+            if (paintColor == MainForm.deadcolor)
+                paintMode = paintmode.draw;
         }
 
         //Check if Mouse Up
@@ -829,60 +828,60 @@ namespace IT_Talents_GameOfLife
                 //Check if user wants to paint a ship
                 else if (paintMode != paintmode.draw)
                 {
-                    //Calculate pattern size
-                    int he = Patterns.ship.GetLength(0);
-                    int wi = Patterns.ship.GetLength(1);
-
-                    bool[,] pattern = Patterns.ship;
-
-                    //Check Paintmode
-                    if (paintMode == paintmode.glider)
-                    {
-                        he = Patterns.glider.GetLength(0);
-                        wi = Patterns.glider.GetLength(1);
-
-                        pattern = Patterns.glider;
-                    }
-                    else if (paintMode == paintmode.custom)
-                    {
-                        he = currentCustomPattern.GetLength(0);
-                        wi = currentCustomPattern.GetLength(1);
-
-                        pattern = currentCustomPattern;
-                    }
-
-                    //Calculate mousePosition on image
-                    float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
-                    float heightMultiplicator = (float)image.Height / (float)gridPictureBox.Height;
-                    int mouseX = (int)(e.X * widthMultiplicator);
-                    int mouseY = (int)(e.Y * heightMultiplicator);
-
-                    //Every row of pattern
-                    for (int y = 0; y < he; y++)
-                    {
-                        //Every collumn of pattern
-                        for (int x = 0; x < wi; x++)
-                        {
-                            int yoffset = 0;
-                            int xoffset = 0;
-
-                            //Make infinity work (Check if out of bounds. If yes subtract/add height/width)
-                            if (mouseY + y >= height && y > 0)
-                                yoffset = -height;
-                            if (mouseX + x >= width && x > 0)
-                                xoffset = -width;
-
-
-                            //If pattern has on position x and y a living cell then add it to the grid
-                            if (pattern[y, x])
-                                PaintHoverAt(mouseX + x + xoffset, mouseY + y + yoffset, true);
-                        }
-                    }
+                    UpdateHoverPositionAndRotation(e.X, e.Y);
                 }
                 
                 syncImage();
 
                 image = beforeHoverMap;
+            }
+        }
+
+        public void UpdateHoverPositionAndRotation(int eX, int eY)
+        {
+            bool[,] pattern = Patterns.ship;
+
+            //Check Paintmode
+            if (paintMode == paintmode.glider)
+                pattern = Patterns.glider;
+            else if (paintMode == paintmode.custom)
+                pattern = currentCustomPattern;
+
+            for (int i = 0; i < currenRotationPattern; i++)
+            {
+                pattern = Patterns.RotatePatternBy90(pattern);
+            }
+
+            //Calculate pattern size
+            int he = pattern.GetLength(0);
+            int wi = pattern.GetLength(1);
+
+            //Calculate mousePosition on image
+            float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
+            float heightMultiplicator = (float)image.Height / (float)gridPictureBox.Height;
+            int mouseX = (int)(eX * widthMultiplicator);
+            int mouseY = (int)(eY * heightMultiplicator);
+
+            //Every row of pattern
+            for (int y = 0; y < he; y++)
+            {
+                //Every collumn of pattern
+                for (int x = 0; x < wi; x++)
+                {
+                    int yoffset = 0;
+                    int xoffset = 0;
+
+                    //Make infinity work (Check if out of bounds. If yes subtract/add height/width)
+                    if (mouseY + y >= height && y > 0)
+                        yoffset = -height;
+                    if (mouseX + x >= width && x > 0)
+                        xoffset = -width;
+
+
+                    //If pattern has on position x and y a living cell then add it to the grid
+                    if (pattern[y, x])
+                        PaintHoverAt(mouseX + x + xoffset, mouseY + y + yoffset, true);
+                }
             }
         }
 
@@ -967,6 +966,49 @@ namespace IT_Talents_GameOfLife
             catch
             {
 
+            }
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            ArrowInput(keyData);
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        public void ArrowInput(Keys keyData)
+        {
+            if (keyData == Keys.Right)
+            {
+                beforeHoverMap = (Bitmap)image.Clone();
+
+                currenRotationPattern++;
+
+                if (currenRotationPattern >= 4)
+                    currenRotationPattern -= 4;
+
+                Point mousePos = gridPictureBox.PointToClient(Cursor.Position);
+
+                UpdateHoverPositionAndRotation(mousePos.X, mousePos.Y);
+                syncImage();
+
+                image = beforeHoverMap;
+            }
+            if (keyData == Keys.Left)
+            {
+                beforeHoverMap = (Bitmap)image.Clone();
+
+                currenRotationPattern--;
+
+                if (currenRotationPattern < 0)
+                    currenRotationPattern += 4;
+
+                Point mousePos = gridPictureBox.PointToClient(Cursor.Position);
+
+                UpdateHoverPositionAndRotation(mousePos.X, mousePos.Y);
+                syncImage();
+
+                image = beforeHoverMap;
             }
         }
         #endregion

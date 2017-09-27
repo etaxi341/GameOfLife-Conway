@@ -431,5 +431,12 @@ namespace IT_Talents_GameOfLife
 
             InitializePatternButtons();
         }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            gf.ArrowInput(keyData);
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
     }
 }
