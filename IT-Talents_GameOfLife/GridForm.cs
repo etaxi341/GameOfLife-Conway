@@ -62,6 +62,9 @@ namespace IT_Talents_GameOfLife
         public paintmode paintMode = paintmode.draw;
         public bool[,] currentCustomPattern;
 
+        //Old Mouse Position to connect lines
+        int oldPaintX = -1, oldPaintY = -1;
+
         //Rotation of Pattern   --- 0 = 0 Degree --- 1 = 90 Degree --- 2 = 180 Degree --- 3 = -90 Degree
         public int currenRotationPattern = 0;
 
@@ -781,6 +784,9 @@ namespace IT_Talents_GameOfLife
                 wasRunningBeforePaint = false;
             }
 
+            //Reset oldPaint Pos
+            oldPaintX = oldPaintY = -1;
+
             //Stop Painting Mode
             isPainting = false;
         }
@@ -798,17 +804,17 @@ namespace IT_Talents_GameOfLife
                     if (Math.Abs(e.X - mouseDownX) > Math.Abs(e.Y - mouseDownY))
                     {
                         //Make Horizontal Line
-                        PaintAt(e.X, mouseDownY);
+                        PaintAt(e.X, mouseDownY, false, true);
                     }
                     else
                     {
                         //Make Vertical Line
-                        PaintAt(mouseDownX, e.Y);
+                        PaintAt(mouseDownX, e.Y, false, true);
                     }
                 }
                 else
                     //Else just paint a dot at Mouse Position
-                    PaintAt(e.X, e.Y);
+                    PaintAt(e.X, e.Y, false, true);
 
                 //Display the image on the Grid Form
                 syncImage();
@@ -888,7 +894,7 @@ namespace IT_Talents_GameOfLife
         /// <summary>
         /// Paints at Position X,Y with variable paintColor
         /// </summary>
-        private void PaintAt(int x, int y, bool imagePos = false)
+        private void PaintAt(int x, int y, bool imagePos = false, bool connectDots = false)
         {
             //Try because sometimes by fast clicking it crashes because multiple threads try to get picturebox width
             try
@@ -921,8 +927,21 @@ namespace IT_Talents_GameOfLife
 
                     //If really inside Image
                     if (mouseX < image.Width && mouseY < image.Height)
+                    {
                         //Set Pixel in paintColor at Mouse Position
                         image.SetPixel(mouseX, mouseY, paintColor);
+
+                        if (connectDots)
+                        {
+                            if (oldPaintX > -1 && oldPaintY > -1)
+                            {
+                                Graphics g = Graphics.FromImage(image);
+                                g.DrawLine(new Pen(paintColor, 1f), oldPaintX, oldPaintY, mouseX, mouseY);
+                            }
+                            oldPaintX = mouseX;
+                            oldPaintY = mouseY;
+                        }
+                    }
                 }
             }
             catch
