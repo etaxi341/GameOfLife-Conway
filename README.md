@@ -77,12 +77,13 @@ Change the color of living and dead cells
 * Create Random Image (Creates noisy grid)
 * Create Blank Image (Just an empty grid)
 * Drawing (Leftclick: Alive Cell --- Rightclick: Dead Cell)
-* Drawing Lines (Hold Shift while drawing to draw straight lines)
+* Drawing Lines (Hold Ctrl while drawing to draw straight lines)
 * Instantiate Patterns on the grid
 * Add your own custom Patterns
 * Set Alive and Dead Color
 * Change Pattern rotation with arrow keys (right,left)
 * Move the Grid when holding Middle Mouse Button down
+* Select Cells on the Grid and use them as a pattern
 
 ## Built With
 
