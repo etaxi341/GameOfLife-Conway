@@ -73,6 +73,16 @@ namespace IT_Talents_GameOfLife.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap icon_cursorselect {
+            get {
+                object obj = ResourceManager.GetObject("icon_cursorselect", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap icon_import {
             get {
                 object obj = ResourceManager.GetObject("icon_import", resourceCulture);

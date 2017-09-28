@@ -45,6 +45,7 @@
             this.nextstep = new System.Windows.Forms.Button();
             this.start = new System.Windows.Forms.Button();
             this.paintmode_add = new System.Windows.Forms.Button();
+            this.paintmode_select = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -54,7 +55,6 @@
             this.label6 = new System.Windows.Forms.Label();
             this.ContextMenuPatternsElement = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.paintmode_select = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.DelayUpDown)).BeginInit();
             this.ContextMenuPatternsElement.SuspendLayout();
             this.SuspendLayout();
@@ -263,6 +263,20 @@
             this.paintmode_add.UseVisualStyleBackColor = true;
             this.paintmode_add.Click += new System.EventHandler(this.paintmode_add_Click);
             // 
+            // paintmode_select
+            // 
+            this.paintmode_select.BackgroundImage = global::IT_Talents_GameOfLife.Properties.Resources.icon_cursorselect;
+            this.paintmode_select.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.paintmode_select.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
+            this.paintmode_select.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.paintmode_select.Location = new System.Drawing.Point(42, 239);
+            this.paintmode_select.Name = "paintmode_select";
+            this.paintmode_select.Size = new System.Drawing.Size(32, 32);
+            this.paintmode_select.TabIndex = 30;
+            this.ToolTipElement.SetToolTip(this.paintmode_select, "Add Ship to Grid");
+            this.paintmode_select.UseVisualStyleBackColor = true;
+            this.paintmode_select.Click += new System.EventHandler(this.paintmode_select_Click);
+            // 
             // label1
             // 
             this.label1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
@@ -336,20 +350,6 @@
             this.removeToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.removeToolStripMenuItem.Text = "Remove";
             this.removeToolStripMenuItem.Click += new System.EventHandler(this.removeToolStripMenuItem_Click);
-            // 
-            // paintmode_select
-            // 
-            this.paintmode_select.BackgroundImage = global::IT_Talents_GameOfLife.Properties.Resources.icon_cursor;
-            this.paintmode_select.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.paintmode_select.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
-            this.paintmode_select.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.paintmode_select.Location = new System.Drawing.Point(42, 239);
-            this.paintmode_select.Name = "paintmode_select";
-            this.paintmode_select.Size = new System.Drawing.Size(32, 32);
-            this.paintmode_select.TabIndex = 30;
-            this.ToolTipElement.SetToolTip(this.paintmode_select, "Add Ship to Grid");
-            this.paintmode_select.UseVisualStyleBackColor = true;
-            this.paintmode_select.Click += new System.EventHandler(this.paintmode_select_Click);
             // 
             // MainForm
             // 
