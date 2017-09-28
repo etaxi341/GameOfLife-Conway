@@ -58,13 +58,13 @@ Generate a new blank Grid with the above defined size
 Draw on the grid with a 1x1 Brush (Left-click = living cell --- Right-click = dead cell)
 
 <img align="left" src="https://i.imgur.com/HoTiOyB.png">
-Select cells on the grid to copy them later as pattern
+Select cells on the grid. Right-click selection to use as Pattern
 
 <img align="left" src="https://i.imgur.com/0XLdj5n.png">
 Use one of the pre-defined patterns on the grid
 
 <img align="left" src="https://i.imgur.com/pKvyMZL.png">
-Add a new Pattern to the Tool Box
+Add a new Pattern to the Tool Box. Right-click on Pattern to remove it
 
 <img align="left" src="https://i.imgur.com/trfih7q.png">
 Change the color of living and dead cells
