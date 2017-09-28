@@ -26,8 +26,8 @@ If any crashes occur try this:
 
 ## How to use the Program
 
-<img align="left" src="https://i.imgur.com/YMgMzDt.png">
-
+<img align="left" src="https://i.imgur.com/0fEPJjF.png">
+<br>
 <img align="left" src="https://i.imgur.com/Ziou3Gf.png">
 Open any image and render it as living and dead cells. Images bigger than 512x512 will be downscaled
 
