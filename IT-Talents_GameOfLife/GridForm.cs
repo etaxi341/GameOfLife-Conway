@@ -54,6 +54,9 @@ namespace IT_Talents_GameOfLife
         //If Cursor is hidden
         bool cursorIsHidden = false;
 
+        //Dont hide selection when leftclick
+        bool keepSelectionOnLeftclick = false;
+
         //Current painting mode
         public paintmode paintMode = paintmode.draw;
         public bool[,] currentCustomPattern;
@@ -63,7 +66,7 @@ namespace IT_Talents_GameOfLife
 
         //Mouse StartPos for Selection
         int mouseStartPosSelectX = -1, mouseStartPosSelectY = -1;
-        int mouseStartPosSelectEndX = -1, mouseStartPosSelectEndY = -1;
+        int mouseEndPosSelectX = -1, mouseEndPosSelectY = -1;
         bool isSelected = false;
 
         //Move image around
@@ -546,6 +549,12 @@ namespace IT_Talents_GameOfLife
 
             //bool for While cycle
             bool running = true;
+
+            //Delete selection
+            isSelected = false;
+            mouseStartPosSelectX = mouseStartPosSelectY = -1;
+            if (paintMode == paintmode.select)
+                paintMode = paintmode.draw;
             
             //CYCLE
             while (running)
@@ -673,10 +682,25 @@ namespace IT_Talents_GameOfLife
                 case MouseButtons.Right:
                     isImageGrabbed = false;
                     //Set Color White
-                    paintColor = MainForm.deadcolor;
+                    if (paintMode != paintmode.select)
+                        paintColor = MainForm.deadcolor;
 
                     if (paintMode == paintmode.grab)
                         paintMode = paintmode.draw;
+
+                    float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
+                    float heightMultiplicator = (float)image.Height / (float)gridPictureBox.Height;
+                    int mouseX = (int)(e.X * widthMultiplicator);
+                    int mouseY = (int)(e.Y * heightMultiplicator);
+
+                    if ((mouseStartPosSelectX < mouseEndPosSelectX && mouseStartPosSelectX <= mouseX && mouseEndPosSelectX >= mouseX) && (mouseStartPosSelectY < mouseEndPosSelectY && mouseStartPosSelectY <= mouseY && mouseEndPosSelectY >= mouseY) ||
+                        (mouseStartPosSelectX > mouseEndPosSelectX && mouseStartPosSelectX >= mouseX && mouseEndPosSelectX <= mouseX) && (mouseStartPosSelectY < mouseEndPosSelectY && mouseStartPosSelectY <= mouseY && mouseEndPosSelectY >= mouseY) ||
+                        (mouseStartPosSelectX < mouseEndPosSelectX && mouseStartPosSelectX <= mouseX && mouseEndPosSelectX >= mouseX) && (mouseStartPosSelectY > mouseEndPosSelectY && mouseStartPosSelectY >= mouseY && mouseEndPosSelectY <= mouseY) ||
+                        (mouseStartPosSelectX > mouseEndPosSelectX && mouseStartPosSelectX >= mouseX && mouseEndPosSelectX <= mouseX) && (mouseStartPosSelectY > mouseEndPosSelectY && mouseStartPosSelectY >= mouseY && mouseEndPosSelectY <= mouseY))
+                    {
+                        keepSelectionOnLeftclick = true;
+                        contextMenuElementSelected.Show(Cursor.Position.X, Cursor.Position.Y);
+                    }
                     break;
 
                 case MouseButtons.Middle:
@@ -750,8 +774,18 @@ namespace IT_Talents_GameOfLife
             //Select something on the grid
             else if (paintMode == paintmode.select && paintColor == MainForm.livingcolor)
             {
-                mouseStartPosSelectX = mouseDownX;
-                mouseStartPosSelectY = mouseDownY;
+
+                if (!keepSelectionOnLeftclick)
+                {
+                    float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
+                    float heightMultiplicator = (float)image.Height / (float)gridPictureBox.Height;
+                    mouseStartPosSelectX = (int)(e.X * widthMultiplicator);
+                    mouseStartPosSelectY = (int)(e.Y * heightMultiplicator);
+
+                    isSelected = false;
+                }
+                else
+                    keepSelectionOnLeftclick = false;
             }
             else if (paintMode == paintmode.grab && paintColor == MainForm.deadcolor)
             {
@@ -775,15 +809,46 @@ namespace IT_Talents_GameOfLife
         //Check if Mouse Up
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
-            //Stop Painting
-            StopPainting();
-
             switch (e.Button)
             {
                 case MouseButtons.Middle:
                     isImageGrabbed = false;
                     break;
             }
+
+            if (paintMode == paintmode.select)
+            {
+                beforeHoverMap = (Bitmap)image.Clone();
+
+                if (!isSelected)
+                {
+                    float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
+                    float heightMultiplicator = (float)image.Height / (float)gridPictureBox.Height;
+                    mouseEndPosSelectX = (int)(e.X * widthMultiplicator);
+                    mouseEndPosSelectY = (int)(e.Y * heightMultiplicator);
+                }
+
+                if (mouseStartPosSelectX > -1 && mouseStartPosSelectY > -1)
+                {
+                    Pen p = new Pen(Color.FromArgb(190, 255, 0, 0), 1f);
+
+                    Graphics g = Graphics.FromImage(image);
+                    //Horizontal
+                    g.DrawLine(p, mouseStartPosSelectX, mouseStartPosSelectY, mouseEndPosSelectX, mouseStartPosSelectY);
+                    g.DrawLine(p, mouseStartPosSelectX, mouseEndPosSelectY, mouseEndPosSelectX, mouseEndPosSelectY);
+
+                    //Vertical
+                    g.DrawLine(p, mouseStartPosSelectX, mouseStartPosSelectY, mouseStartPosSelectX, mouseEndPosSelectY);
+                    g.DrawLine(p, mouseEndPosSelectX, mouseStartPosSelectY, mouseEndPosSelectX, mouseEndPosSelectY);
+                }
+
+                syncImage(true);
+
+                image = beforeHoverMap;
+            }
+
+            //Stop Painting
+            StopPainting();
         }
 
         //Check if Mouse Left
@@ -884,16 +949,12 @@ namespace IT_Talents_GameOfLife
                 //initializeGridFromCells(MainForm.livingcolor, MainForm.deadcolor);
 
                 //Check if user wants to draw by hand
-                if (paintMode == paintmode.draw)
-                {
-                    PaintHoverAt(e.X, e.Y);
-                }
-                else if (paintMode == paintmode.grab)
+                if (paintMode == paintmode.draw || paintMode == paintmode.grab || paintMode == paintmode.select)
                 {
                     PaintHoverAt(e.X, e.Y);
                 }
                 //Check if user wants to paint a ship
-                else if (paintMode != paintmode.draw)
+                else if (paintMode == paintmode.ship || paintMode == paintmode.glider || paintMode == paintmode.custom)
                 {
                     UpdateHoverPositionAndRotation(e.X, e.Y);
                 }
@@ -905,10 +966,35 @@ namespace IT_Talents_GameOfLife
 
 
 
-            if (!isSelected)
+            if (paintMode == paintmode.select && (updateThread == null || !updateThread.IsAlive))
             {
-                mouseStartPosSelectEndX = e.X;
-                mouseStartPosSelectEndY = e.Y;
+                beforeHoverMap = (Bitmap)image.Clone();
+
+                if (!isSelected)
+                {
+                    float widthMultiplicator = (float)image.Width / (float)gridPictureBox.Width;
+                    float heightMultiplicator = (float)image.Height / (float)gridPictureBox.Height;
+                    mouseEndPosSelectX = (int)(e.X * widthMultiplicator);
+                    mouseEndPosSelectY = (int)(e.Y * heightMultiplicator);
+                }
+
+                if (mouseStartPosSelectX > -1 && mouseStartPosSelectY > -1)
+                {
+                    Pen p = new Pen(Color.FromArgb(190,255,0,0), 1f);
+
+                    Graphics g = Graphics.FromImage(image);
+                    //Horizontal
+                    g.DrawLine(p, mouseStartPosSelectX, mouseStartPosSelectY, mouseEndPosSelectX, mouseStartPosSelectY);
+                    g.DrawLine(p, mouseStartPosSelectX, mouseEndPosSelectY, mouseEndPosSelectX, mouseEndPosSelectY);
+
+                    //Vertical
+                    g.DrawLine(p, mouseStartPosSelectX, mouseStartPosSelectY, mouseStartPosSelectX, mouseEndPosSelectY);
+                    g.DrawLine(p, mouseEndPosSelectX, mouseStartPosSelectY, mouseEndPosSelectX, mouseEndPosSelectY);
+                }
+
+                syncImage(true);
+
+                image = beforeHoverMap;
             }
             if (paintMode == paintmode.grab && paintColor == MainForm.deadcolor && isImageGrabbed)
             {
@@ -1190,6 +1276,34 @@ namespace IT_Talents_GameOfLife
                 syncImage(true);
 
                 image = beforeHoverMap;
+            }
+        }
+
+        private void selectionAsPatternToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string namePattern = Microsoft.VisualBasic.Interaction.InputBox("Name your Pattern", "New Pattern", "Patternname"); ;
+            namePattern.Replace("_", " ");
+
+            if (Patterns.HasName(namePattern))
+                return;
+
+            if (namePattern != "" && namePattern != null)
+            {
+                Rectangle rectangle = new Rectangle(mouseStartPosSelectX, mouseStartPosSelectY, mouseEndPosSelectX - mouseStartPosSelectX + 1, mouseEndPosSelectY - mouseStartPosSelectY + 1);
+
+                if (mouseStartPosSelectX > mouseEndPosSelectX && mouseStartPosSelectY < mouseEndPosSelectY)
+                    rectangle = new Rectangle(mouseEndPosSelectX, mouseStartPosSelectY, mouseStartPosSelectX - mouseEndPosSelectX + 1, mouseEndPosSelectY - mouseStartPosSelectY + 1);
+                else if (mouseStartPosSelectX > mouseEndPosSelectX && mouseStartPosSelectY > mouseEndPosSelectY)
+                    rectangle = new Rectangle(mouseEndPosSelectX, mouseEndPosSelectY, mouseStartPosSelectX - mouseEndPosSelectX + 1, mouseStartPosSelectY - mouseEndPosSelectY + 1);
+                else if (mouseStartPosSelectX < mouseEndPosSelectX && mouseStartPosSelectY > mouseEndPosSelectY)
+                    rectangle = new Rectangle(mouseStartPosSelectX, mouseEndPosSelectY, mouseEndPosSelectX - mouseStartPosSelectX + 1, mouseStartPosSelectY - mouseEndPosSelectY + 1);
+
+                //Crop useless areas
+                Bitmap bmp = image.Clone(rectangle, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+
+                Patterns.AddPattern(bmp, namePattern);
+
+                MainForm.instance.InitializePatternButtons();
             }
         }
         #endregion

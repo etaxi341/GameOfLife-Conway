@@ -57,7 +57,14 @@ namespace IT_Talents_GameOfLife
         /// </summary>
         public static void AddPattern(string path, string name)
         {
-            Bitmap bmp = new Bitmap(path);
+            AddPattern(new Bitmap(path), name);
+        }
+
+        /// <summary>
+        /// Add a new Pattern with bmp and name
+        /// </summary>
+        public static void AddPattern(Bitmap bmp, string name)
+        {
             Rectangle rectangle = new Rectangle(0, 0, bmp.Width, bmp.Height);
 
             //Make sure its 32bppRgb;

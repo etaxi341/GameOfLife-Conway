@@ -28,9 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GridForm));
             this.gridPictureBox = new System.Windows.Forms.PictureBox();
+            this.contextMenuElementSelected = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.selectionAsPatternToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.gridPictureBox)).BeginInit();
+            this.contextMenuElementSelected.SuspendLayout();
             this.SuspendLayout();
             // 
             // gridPictureBox
@@ -47,6 +51,20 @@
             this.gridPictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
             this.gridPictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
             // 
+            // contextMenuElementSelected
+            // 
+            this.contextMenuElementSelected.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.selectionAsPatternToolStripMenuItem});
+            this.contextMenuElementSelected.Name = "contextMenuElementSelected";
+            this.contextMenuElementSelected.Size = new System.Drawing.Size(178, 48);
+            // 
+            // selectionAsPatternToolStripMenuItem
+            // 
+            this.selectionAsPatternToolStripMenuItem.Name = "selectionAsPatternToolStripMenuItem";
+            this.selectionAsPatternToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.selectionAsPatternToolStripMenuItem.Text = "Selection as Pattern";
+            this.selectionAsPatternToolStripMenuItem.Click += new System.EventHandler(this.selectionAsPatternToolStripMenuItem_Click);
+            // 
             // GridForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -62,6 +80,7 @@
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.LocationChanged += new System.EventHandler(this.GridForm_LocationChanged);
             ((System.ComponentModel.ISupportInitialize)(this.gridPictureBox)).EndInit();
+            this.contextMenuElementSelected.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -69,6 +88,8 @@
         #endregion
 
         private System.Windows.Forms.PictureBox gridPictureBox;
+        private System.Windows.Forms.ContextMenuStrip contextMenuElementSelected;
+        private System.Windows.Forms.ToolStripMenuItem selectionAsPatternToolStripMenuItem;
     }
 }
 

@@ -60,7 +60,7 @@ namespace IT_Talents_GameOfLife
             InitializePatternButtons();
         }
 
-        private void InitializePatternButtons()
+        public void InitializePatternButtons()
         {
             foreach(Button btn in patternButtons)
             {
