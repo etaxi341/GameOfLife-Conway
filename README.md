@@ -37,6 +37,9 @@ Save the current grid as Bitmap. You can reopen it later on with "Open Image"
 <img align="left" src="https://i.imgur.com/ev2Rh5s.png">
 Start/Stop the simulation of the Grid
 
+<img align="left" src="https://i.imgur.com/QHBDe26.png">
+Simulate one Frame of the Grid
+
 <img align="left" src="https://i.imgur.com/rGkqr54.png">
 Delay between the simulation cycles (50 = 50ms delay between cycles)
 
