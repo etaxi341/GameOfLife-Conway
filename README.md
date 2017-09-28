@@ -26,7 +26,7 @@ If any crashes occur try this:
 
 ## How to use the Program
 
-<img align="left" src="https://i.imgur.com/m1w5SHU.png">
+<img align="left" src="https://i.imgur.com/rUiGMFu.png">
 
 ### Symbols:
 
